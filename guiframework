@@ -1,0 +1,360 @@
+local service =
+{
+    uis = game:GetService("UserInputService");
+    plrs = game:GetService("Players");
+    plr = game:GetService("Players").LocalPlayer;
+    cam = game:GetService("Workspace").CurrentCamera;
+    tween = game:GetService("TweenService");
+}
+
+local essentials =
+{
+    generatestring = function(length, lettermin, lettermax)
+        local finstring
+        
+        for i = 1, length do
+            
+            if finstring ~= nil then
+                finstring = finstring .. string.char(math.random(lettermin, lettermax))
+            else
+                finstring = string.char(math.random(lettermin, lettermax))
+            end
+            
+        end
+        
+        return finstring
+    end
+}
+
+local styles =
+{
+    internal1 =
+    {
+        bg = function(parent, z, color, size) 
+            
+            local bg = Instance.new("Frame")
+            
+            bg.AnchorPoint = Vector2.new(0.5, 0.5)
+            
+            bg.Position = UDim2.new(0.5, 0, 0.5, 0)
+            bg.Size = size
+            
+            bg.BorderSizePixel = 0
+            
+            bg.BackgroundColor3 = color
+            bg.BackgroundTransparency = 0.1
+            
+            bg.ZIndex = z
+            
+            bg.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            syn.protect_gui(bg)
+            
+            bg.Parent = parent
+            
+            return bg
+            
+        end;
+        
+        text = function(parent, z, text, font, color, coloroutline, anchorpoint, position, size, textxalign, textyalign)
+            
+            local textb = Instance.new("TextButton")
+            
+            textb.AnchorPoint = anchorpoint
+            
+            textb.Position = position
+            textb.Size = size
+            
+            textb.BorderSizePixel = 0
+            
+            textb.TextScaled = true
+            textb.RichText = true
+            
+            textb.Font = font
+            textb.Text = text
+            
+            textb.TextXAlignment = textxalign
+            textb.TextYAlignment = textyalign
+            
+            textb.TextColor3 = color
+            textb.TextStrokeColor3 = coloroutline
+            
+            textb.TextStrokeTransparency = 0.9
+            
+            textb.BackgroundTransparency = 1
+            
+            textb.ZIndex = z
+            
+            textb.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            syn.protect_gui(textb)
+            
+            textb.Parent = parent
+            
+            return textb
+            
+        end;
+        
+        textbox = function(parent, z, text, font, color, coloroutline, anchorpoint, position, size, textxalign, textyalign)
+            
+            local textb = Instance.new("TextBox")
+            
+            textb.AnchorPoint = anchorpoint
+            
+            textb.Position = position
+            textb.Size = size
+            
+            textb.BorderSizePixel = 0
+            
+            textb.ClearTextOnFocus = false
+            textb.TextScaled = true
+            textb.RichText = true
+            
+            textb.Font = font
+            textb.Text = text
+            
+            textb.TextXAlignment = textxalign
+            textb.TextYAlignment = textyalign
+            
+            textb.TextColor3 = color
+            textb.TextStrokeColor3 = coloroutline
+            
+            textb.TextStrokeTransparency = 0.9
+            
+            textb.BackgroundTransparency = 1
+            
+            textb.ZIndex = z
+            
+            textb.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            syn.protect_gui(textb)
+            
+            textb.Parent = parent
+            
+            return textb
+            
+        end;
+        
+        frame = function() end;
+        
+        scroll = function() end;
+    };
+}
+
+local functions =
+{
+    
+    connect =
+    {
+        
+        drag = function(guitomove, guiinput, speed, smoothbool)
+            
+            guiinput.InputBegan:Connect(function(inp)
+                
+                if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                    
+                    local inp_position = Vector2.new(inp.Position.X, inp.Position.Y + 36)
+                    
+                    local window_size = service.cam.ViewportSize
+                    local pos_origin_abs = guitomove.AbsolutePosition
+                    local pos_origin = guitomove.Position
+                    
+                    local smoothingtween
+                    
+                    while service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                        
+                        local mouse_delta = inp_position - service.uis:GetMouseLocation()
+                        
+                        if smoothbool then
+                            
+                            if smoothingtween then
+                                smoothingtween:Cancel()
+                                smoothingtween = nil
+                            end
+                            
+                            smoothingtween = service.tween:Create(guitomove, TweenInfo.new(speed, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out, 0), { Position = UDim2.new(pos_origin.X.Scale, pos_origin.X.Offset - mouse_delta.X, pos_origin.Y.Scale, pos_origin.Y.Offset - mouse_delta.Y) })
+                            
+                            smoothingtween:Play()
+                            
+                            wait()
+                            
+                        else
+                            
+                            guitomove.Position = UDim2.new(pos_origin.X.Scale, pos_origin.X.Offset - mouse_delta.X, pos_origin.Y.Scale, pos_origin.Y.Offset - mouse_delta.Y)
+                            
+                            wait()
+                            
+                        end
+                        
+                    end
+                    
+                    if smoothbool then
+                        smoothingtween.Completed:Wait()
+                        smoothingtween = nil
+                    end
+                
+                end
+                
+            end)
+        end;
+        
+        textinput =
+        {
+            gained = function(guiobj, focusstart)
+            
+                -- text box input
+                
+                if guiobj:IsA("TextBox") then
+                    
+                    guiobj.Focused:Connect(focusstart)
+                    
+                else
+                    
+                    print("Error, GUI element isn't a TextBox.")
+                    return
+                    
+                end
+            
+            end;
+            
+            lost = function(guiobj, oldtext, focusend)
+                
+                if guiobj:IsA("TextBox") then
+                    
+                    guiobj.FocusLost:Connect(focusend)
+                    
+                else
+                    
+                    print("Error, GUI element isn't a TextBox.")
+                    return
+                    
+                end
+                
+            end;
+            
+        };
+        
+        click = function(guiobj, action)
+                
+            guiobj.InputBegan:Connect(function(inp)
+                if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                    action()
+                end
+            end)
+            
+        end;
+        
+        guienter = function(guiobj, action)
+            
+            guiobj.MouseEnter:Connect(action)
+            
+        end;
+        
+        guileave = function(guiobj, action)
+            
+            guiobj.MouseLeave:Connect(action)
+            
+        end;
+        
+    };
+    
+    createnew = 
+    {
+        
+        screen = function(ignoreinset)
+            
+          local newscreengui = Instance.new("ScreenGui")
+            
+            newscreengui.IgnoreGuiInset = ignoreinset
+            
+            newscreengui.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            syn.protect_gui(newscreengui)
+            
+            newscreengui.Parent = game:GetService("CoreGui")
+            
+            return newscreengui
+            
+        end;
+        
+        frame = function(parent, z, clip, anchorpoint, position, size)
+            
+            local newcontainer = Instance.new("Frame")
+            
+            newcontainer.ZIndex = z
+            
+            newcontainer.BorderSizePixel = 0
+            
+            newcontainer.ClipsDescendants = clip
+            
+            newcontainer.AnchorPoint = anchorpoint
+            
+            newcontainer.Size = size
+            newcontainer.Position = position
+            
+            newcontainer.BackgroundTransparency = 1
+            
+            newcontainer.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            syn.protect_gui(newcontainer)
+            
+            newcontainer.Parent = parent
+            
+            return newcontainer
+            
+        end;
+        
+        scroll = function(parent, z, clip, anchorpoint, position, size, canvassize)
+            
+            local newcontainer = Instance.new("ScrollingFrame")
+            local newsort = Instance.new("UIListLayout")
+            
+            --setting
+            --scroll
+            
+            newcontainer.ZIndex = z
+            
+            newcontainer.BorderSizePixel = 0
+            
+            newcontainer.ClipsDescendants = clip
+            
+            newcontainer.AnchorPoint = anchorpoint
+            
+            newcontainer.Size = size
+            newcontainer.Position = position
+            newcontainer.CanvasSize = canvassize
+            
+            newcontainer.BackgroundTransparency = 1
+            
+            newcontainer.ScrollingDirection = "Y"
+            
+            newcontainer.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            --sort
+            
+            newsort.SortOrder = Enum.SortOrder.LayoutOrder
+            
+            newsort.HorizontalAlignment = "Center"
+            newsort.VerticalAlignment = "Top"
+            
+            newsort.Name = essentials.generatestring(math.random(10, 50), 1, 255)
+            
+            --securing
+            
+            syn.protect_gui(newcontainer)
+            syn.protect_gui(newsort)
+            
+            --parenting
+            
+            newcontainer.Parent = parent
+            newsort.Parent = newcontainer
+            
+            return newcontainer
+            
+        end;
+        
+    }
+    
+}
+
+return service, essentials, styles, functions
