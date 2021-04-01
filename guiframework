@@ -5,6 +5,7 @@ local service =
     plr = game:GetService("Players").LocalPlayer;
     cam = game:GetService("Workspace").CurrentCamera;
     tween = game:GetService("TweenService");
+    http = game:GetService("HttpService");
 }
 
 local essentials =
