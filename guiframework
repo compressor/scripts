@@ -350,7 +350,7 @@ local functions =
             newcontainer.Parent = parent
             newsort.Parent = newcontainer
             
-            return newcontainer
+            return newcontainer, newsort
             
         end;
         
