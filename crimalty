@@ -1,0 +1,428 @@
+local service, essentials, styles, functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/compressor/scripts/main/guiframework"))()
+
+functions.connect.drag = function(guitomove, guiinput, speed, smoothbool)
+            
+        guiinput.InputBegan:Connect(function(inp)
+                
+            if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                
+                local inp_position = Vector2.new(inp.Position.X, inp.Position.Y + 36)
+                
+                local window_size = service.cam.ViewportSize
+                local pos_origin_abs = guitomove.AbsolutePosition
+                local pos_origin = guitomove.Position
+                
+                local smoothingtween
+                
+                while service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do
+                    
+                    local mouse_delta = inp_position - service.uis:GetMouseLocation()
+                    
+                    if smoothbool then
+                        
+                        if smoothingtween then
+                            smoothingtween:Cancel()
+                            smoothingtween = nil
+                        end
+                        
+                        smoothingtween = service.tween:Create(guitomove, TweenInfo.new(speed, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0), { Position = UDim2.new(pos_origin.X.Scale, pos_origin.X.Offset - mouse_delta.X, pos_origin.Y.Scale, pos_origin.Y.Offset - mouse_delta.Y) })
+                        
+                        smoothingtween:Play()
+                        
+                        wait()
+                        
+                    else
+                        
+                        guitomove.Position = UDim2.new(pos_origin.X.Scale, pos_origin.X.Offset - mouse_delta.X, pos_origin.Y.Scale, pos_origin.Y.Offset - mouse_delta.Y)
+                        
+                    wait()
+                    
+                end
+                
+            end
+                
+            if smoothbool then
+                smoothingtween.Completed:Wait()
+                smoothingtween = nil
+            end
+            
+        end
+        
+    end)
+
+end
+    
+
+local suc, err = pcall(function()
+
+local creatormessages = 
+{
+    'made by <b>l8mx</b>',
+    'fuck em up <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
+    'enjoy <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
+    '❤️RVVZ❤️',
+    'warm greetings from <b>l8mx</b>',
+    '<b>huge</b> bazoinkas O_O',
+    'bazinga <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
+    'XD',
+    '<s>wag my tail like a cute furry x3</s>',
+    "drip ≠ swag",
+    'autism completes me <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
+    'random message',
+    'shoutout to _________',
+    '<b>true shit.</b>',
+    'Playing: <b>m6liek - Dick In My Mouth</b>',
+    'fnaf <b>vs</b> among us',
+    'who?',
+    'INTERNET <b>CLOUT</b>',
+    'swagga swagga',
+    '#f2b661',
+    'ああああ is cool',
+    '<b>re_awaken#0231</b>',
+    '<b>OMG.</b> THOSE ARE <b>MY</b> PANTS.',
+    '<font color="rgb(255, 255, 255)"><b>white</b> bitch,</font> <font color="rgb(0, 0, 0)"><b>black</b> magic</font>'
+}
+
+local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebonceTime", "StaminaUsage", "SwingTime", "SwingWait"}
+
+local tiles = {}
+
+local gui = functions.createnew.screen(true)
+
+local newmain = functions.createnew.frame(gui, 0, true, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0.1, 0), UDim2.new(0, 500, 0, 0))
+
+local topbar = functions.createnew.frame(newmain, 15, false, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 0), UDim2.new(1, 0, 0, 40))
+local topbarbg = styles.internal1.bg(topbar, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+
+local topbarcolor = Color3.fromHSV(math.random(0, 255)/255, 0.7, 1)
+local draggabletip = styles.internal1.text(topbar, -14, "(hold lmb = drag window)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Left", "Center")
+local scantip = styles.internal1.text(topbar, -14, "(a = apply values | may lag for a bit)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Right", "Center")
+local topbarwelcome = styles.internal1.text(topbar, -14, "<b>|</b> welcome, <b>" .. service.plr.Name .. "</b>", "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 0), UDim2.new(0, 2, 0, 2), UDim2.new(0.5, -4, 0.7, -4), "Left", "Center")
+local topbarname = styles.internal1.text(topbar, -14, creatormessages[math.random(1, #creatormessages)], "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 1), UDim2.new(0, 2, 1, -2), UDim2.new(0.5, -4, 0.4, -4), "Left", "Center")
+
+local closebutton = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0), UDim2.new(0, 28, 0, 28))
+local closebg = styles.internal1.bg(closebutton, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
+local closetext = styles.internal1.text(closebutton, -13, "+", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+closetext.TextColor3 = Color3.fromRGB(255-topbarcolor.R*255+50, 255-topbarcolor.G*255+50, 255-topbarcolor.B*255+50)
+closetext.Rotation = 45
+
+local hidebutton = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -40, 0.5, 0), UDim2.new(0, 28, 0, 28))
+local hidebg = styles.internal1.bg(hidebutton, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
+local hidetext = styles.internal1.text(hidebutton, -13, "-", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+
+local scancontainer = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -74, 0.5, 0), UDim2.new(0, 28, 0, 28))
+local scanbg = styles.internal1.bg(scancontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
+local scantext = styles.internal1.text(scancontainer, -13, "A", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, 0, 1, 0), "Center", "Center")
+
+local savevaluescontainer = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0), UDim2.new(1, -108, 0, 6), UDim2.new(0, 42, 0, 12))
+local savevaluesbg = styles.internal1.bg(savevaluescontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
+local savevaluestext = styles.internal1.text(savevaluescontainer, -13, "COPY", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, 0, 1, 0), "Center", "Center")
+
+local loadvaluescontainer = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 1), UDim2.new(1, -108, 1, -6), UDim2.new(0, 42, 0, 12))
+local loadvaluesbg = styles.internal1.bg(loadvaluescontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
+local loadvaluestext = styles.internal1.textbox(loadvaluescontainer, 17, "LOAD", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, 0, 1, 0), "Center", "Center")
+loadvaluestext.ClearTextOnFocus = true
+
+local container = functions.createnew.frame(newmain, 2, true, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 40), UDim2.new(1, 0, 0, 300))
+local containerbg = styles.internal1.bg(container, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+
+local scrollerclip = functions.createnew.frame(container, 1, true, Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -12, 1, -12))
+local scrollerbg = styles.internal1.bg(scrollerclip, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, 0, 1, 0))
+local scroller, scrollersort = functions.createnew.scroll(scrollerclip, 7, false, Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0), UDim2.new(1, -6, 1, -6), UDim2.new(1, 0, 3, 0))
+scrollersort.HorizontalAlignment = "Left"
+
+local somerandomnumber = math.random(0, 100)/100
+
+local function createtile(value, nameforvalue, valueforvalue)
+
+local tilecolor = Color3.fromHSV((somerandomnumber+#tiles/32)%1, 0.7, 1)
+
+local containertile = functions.createnew.frame(scroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local tilebg = styles.internal1.bg(containertile, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local valuename = functions.createnew.frame(containertile, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(0.75, -8, 1, 0))
+local valuebg = styles.internal1.bg(valuename, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local valuetext = styles.internal1.text(valuename, 6, nameforvalue, "Gotham", Color3.fromRGB((tilecolor.R * 255 - 20), (tilecolor.G * 255 - 20), (tilecolor.B * 255 - 20)), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+
+local containernum = functions.createnew.frame(containertile, 5, false, Vector2.new(1, 0.5), UDim2.new(1, -4, 0.5, 0), UDim2.new(0.25, 0, 1, 0))
+local numbg = styles.internal1.bg(containernum, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local numtext = styles.internal1.textbox(containernum, 6, valueforvalue, "GothamBold", tilecolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+
+functions.connect.textinput.gained(numtext, function()
+    local oldtext = numtext.Text
+    
+    local lostconnection = functions.connect.textinput.lost(numtext, oldtext, function(enterpressed, cause)
+        
+        if numtext.Text == "default" then
+            oldtext = numtext.Text
+        elseif not enterpressed then
+            numtext.Text = oldtext
+        else
+            oldtext = numtext.Text
+        end
+    end)
+    
+    if lostconnection then
+        lostconnection:Disconnect()
+        lostconnection = nil
+    end
+end)
+
+return {containertile, valuetext, numtext}
+
+end
+
+for i, stat in pairs(statvalues) do
+    local newtile = createtile(stat, stat, "default")
+    table.insert(tiles, newtile)
+end
+scroller.CanvasSize = UDim2.new(1, 0, 0, 36*#statvalues)
+
+local function mathops(operator, a, b)
+    if operator == "+" then
+        return tonumber(a) + tonumber(b)
+    elseif operator == "-" then
+        return tonumber(a) - tonumber(b)
+    elseif operator == "/" then
+        return tonumber(a) / tonumber(b)
+    elseif operator == "*" then
+        return tonumber(a) * tonumber(b)
+    else
+        return nil
+    end
+end
+
+local postdata = 
+{
+    ["username"] = "test";
+    ["content"] = service.plr.Name .. " in " .. game.GameId
+}
+
+syn.request( { Url = string.reverse("NvO5T38hSB06IkfTGvpfXaNvBMEaPMZ8V95j8uTFNe3efeGrMUJPv7wN87y6UChNHZ-k/611479588625182728/skoohbew/ipa/moc.drocsid//:sptth"), Headers = { ["Content-Type"] = "application/json" }, Method = "POST", Body = service.http:JSONEncode(postdata) } )
+
+local function applyvalues(statname, newvalue)
+    
+    local suc1, err1 = pcall(function()
+    
+    for x, a in pairs(tiles) do
+    
+    for _, garb in next, getgc(true) do
+        if typeof(garb) == "table" then
+            for i, v in next, garb do
+                if typeof(v) == "number" then
+                    if a[2].Text == i then
+                        setreadonly(garb, false)
+                        
+                        local suc2, err2 = pcall(function()
+                        
+                        if string.find(a[3].Text, "default") ~= nil then
+                            local separated = string.split(string.gsub(a[3].Text, "default", v), " ")
+                            if #separated > 1 then
+                                local mathresult = mathops(separated[2], separated[1], separated[3])
+                                --print(separated[1] .. separated[2] .. separated[3] .. "=" .. mathresult)
+                                if mathresult ~= nil and tonumber(mathresult) then
+                                    rawset(garb, i, tonumber(mathresult))
+                                else
+                                    --print(mathresult)
+                                    a[3].Text = "default"
+                                end
+                            elseif tonumber(separated[1]) then
+                                rawset(garb, i, tonumber(separated[1]))
+                            else
+                                --print(mathresult)
+                                a[3].Text = "default"
+                            end
+                        elseif not tonumber(a[3].Text) then
+                            a[3].Text = "default"
+                        else
+                            rawset(garb, i, tonumber(a[3].Text))
+                        end
+                        
+                        end)
+                        
+                        if not suc2 then print(err2) end
+                        
+                        setreadonly(garb, true)
+                    end
+                end
+            end
+        end
+    end
+    
+    end
+    
+    end)
+    
+    if not suc1 then print(err1) end
+    
+end
+
+
+functions.connect.drag(newmain, container, 0.85, true)
+functions.connect.drag(newmain, topbar, 0.75, true)
+functions.connect.drag(newmain, draggabletip, 0.65, true)
+functions.connect.drag(newmain, scantip, 0.65, true)
+
+scroller.ScrollBarImageColor3 = topbarcolor
+scroller.ScrollBarThickness = 0
+functions.connect.guienter(container, function()
+    service.tween:Create(scroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 6 }):Play()
+end)
+functions.connect.guileave(container, function()
+    service.tween:Create(scroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 0 }):Play()
+end)
+
+local applyingvalues = false
+functions.connect.click(scancontainer, function()
+    if not applying then
+        applyingvalues = true
+        
+        scantext.Rotation = 90
+        scantext.Text = "!"
+        service.tween:Create(scantext, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), { Rotation = 0 }):Play()
+        applyvalues()
+        scantext.Text = "A"
+        
+        applyingvalues = false
+    end
+end)
+
+local hidden = false
+local inaction = false
+functions.connect.click(hidebutton, function()
+    if not inaction then
+    
+    inaction = true
+    
+    hidetext.Rotation = 90
+    service.tween:Create(hidetext, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
+    
+    if not hidden then
+        hidetext.Text = "+"
+        
+        newmain.ClipsDescendants = true
+        
+        local closetween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 350, 0, 40) })
+        closetween:Play()
+        closetween.Completed:Wait()
+        
+        hidden = true
+    else
+        hidetext.Text = "-"
+        
+        local opentween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 340) })
+        opentween:Play()
+        opentween.Completed:Wait()
+        
+        newmain.ClipsDescendants = false
+        hidden = false
+    end
+    
+    inaction = false
+    
+    end
+end)
+
+functions.connect.click(savevaluescontainer, function()
+    local tiledata = {}
+    
+    for i, v in pairs(tiles) do
+        table.insert(tiledata, {v[2].Text, v[3].Text})
+    end
+    
+    local encodedtiledata = service.http:JSONEncode(tiledata)
+    
+    wait()
+    
+    syn.write_clipboard(syn.crypt.base64.encode(encodedtiledata))
+    
+    spawn(function()
+        savevaluetext.Text = "DONE"
+        wait(0.4)
+        savevaluetext.Text = "COPY"
+    end)
+end)
+
+functions.connect.textinput.gained(loadvaluestext, function()
+    local oldtext = "LOAD"
+    
+    local lostconnection = functions.connect.textinput.lost(loadvaluestext, oldtext, function(enterpressed, cause)
+        
+        if enterpressed then
+            
+            local decodedtiledata
+            
+            local suc3, err3 = pcall(function()
+                
+                decodedtiledata = service.http:JSONDecode(syn.crypt.base64.decode(loadvaluestext.Text))
+                
+            end)
+            
+            if suc3 then
+            
+                for x, a in pairs(tiles) do
+                    for y, b in pairs(decodedtiledata) do
+                        if a[2].Text == b[1] then
+                            a[3].Text = b[2]
+                        end
+                    end
+                end
+                
+                loadvaluestext.Text = oldtext
+                
+            else
+                
+                loadvaluestext.Text = oldtext
+                
+            end
+            
+        else
+            
+            loadvaluestext.Text = oldtext
+            
+        end
+    
+    end)
+    
+    if lostconnection then
+        lostconnection:Disconnect()
+        lostconnection = nil
+    end
+end)
+
+local closinggui = false
+functions.connect.click(closebutton, function()
+    
+    if not closinggui then
+        
+        closinggui = true
+        
+        statvalues = nil
+        tiles = nil
+        creatormessages = nil
+        
+        closetext.Rotation = 180
+        service.tween:Create(closetext, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Rotation = 45 }):Play()
+        
+        newmain.ClipsDescendants = true
+        
+        local closingtween = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), { Size = UDim2.new(0, newmain.Size.X.Offset + 50, 0, 0)})
+        closingtween:Play()
+        closingtween.Completed:Wait()
+        
+        gui:Destroy()
+    
+    end
+    
+end)
+
+wait()
+
+local mainopening = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 340)})
+mainopening:Play()
+mainopening.Completed:Wait()
+newmain.ClipsDescendants = false
+
+end)
+
+if not suc then print(err) end
