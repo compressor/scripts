@@ -6,6 +6,7 @@ local service =
     cam = game:GetService("Workspace").CurrentCamera;
     tween = game:GetService("TweenService");
     http = game:GetService("HttpService");
+    pathfinding = game:GetService("PathfindingService");
 }
 
 local essentials =
