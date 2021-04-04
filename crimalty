@@ -83,7 +83,7 @@ local creatormessages =
     '<font color="rgb(255, 255, 255)"><b>white</b> bitch,</font> <font color="rgb(0, 0, 0)"><b>black</b> magic</font>'
 }
 
-local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebonceTime", "StaminaUsage", "SwingTime", "SwingWait"}
+local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebounceTime", "StaminaUsage", "SwingTime", "SwingWait"}
 
 local tiles = {}
 
