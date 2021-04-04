@@ -57,7 +57,6 @@ local suc, err = pcall(function()
 
 local creatormessages = 
 {
-    'made by <b>l8mx</b>',
     'fuck em up <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
     'enjoy <b><font color="rgb(100, 100, 100)">-l8mx</font></b>',
     '❤️RVVZ❤️',
@@ -80,12 +79,33 @@ local creatormessages =
     'ああああ is cool',
     '<b>re_awaken#0231</b>',
     '<b>OMG.</b> THOSE ARE <b>MY</b> PANTS.',
-    '<font color="rgb(255, 255, 255)"><b>white</b> bitch,</font> <font color="rgb(0, 0, 0)"><b>black</b> magic</font>'
+    '<font color="rgb(255, 255, 255)"><b>white</b> bitch,</font> <font color="rgb(0, 0, 0)"><b>black</b> magic</font>',
+    'made by <b>dragonitelover777</b>',
+    'best blowjob ever',
+    '<b>fortnite move</b>',
+    'https://cdn.discordapp.com/attachments/675605826299232287/827962678881681408/Tylayt.webm',
+    'https://youtu.be/1hHB9zC_9Yc',
+    '<font color="rgb(170, 141, 216)">say you are my baka</font> 😈'
 }
 
-local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebounceTime", "StaminaUsage", "SwingTime", "SwingWait"}
+local greetingmessages =
+{
+    "welcome,",
+    "hvh unite,",
+    "ja",
+    "<i>ohayo,</i>",
+    "<s>uwu</s>",
+    "sup,",
+    "здравия,",
+    "-",
+    "nil,",
+    "🥀",
+}
+
+local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebonceTime", "StaminaUsage", "SwingTime", "SwingWait"}
 
 local tiles = {}
+local customtiles = {}
 
 local gui = functions.createnew.screen(true)
 
@@ -97,7 +117,7 @@ local topbarbg = styles.internal1.bg(topbar, -15, Color3.fromRGB(50, 52, 50), UD
 local topbarcolor = Color3.fromHSV(math.random(0, 255)/255, 0.7, 1)
 local draggabletip = styles.internal1.text(topbar, -14, "(hold lmb = drag window)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Left", "Center")
 local scantip = styles.internal1.text(topbar, -14, "(a = apply values | may lag for a bit)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Right", "Center")
-local topbarwelcome = styles.internal1.text(topbar, -14, "<b>|</b> welcome, <b>" .. service.plr.Name .. "</b>", "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 0), UDim2.new(0, 2, 0, 2), UDim2.new(0.5, -4, 0.7, -4), "Left", "Center")
+local topbarwelcome = styles.internal1.text(topbar, -14, "<b>|</b> " .. greetingmessages[math.random(1, #greetingmessages)] .. " <b>" .. service.plr.Name .. "</b>", "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 0), UDim2.new(0, 2, 0, 2), UDim2.new(0.5, -4, 0.7, -4), "Left", "Center")
 local topbarname = styles.internal1.text(topbar, -14, creatormessages[math.random(1, #creatormessages)], "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 1), UDim2.new(0, 2, 1, -2), UDim2.new(0.5, -4, 0.4, -4), "Left", "Center")
 
 local closebutton = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0), UDim2.new(0, 28, 0, 28))
@@ -142,11 +162,11 @@ local tilebg = styles.internal1.bg(containertile, -14, Color3.fromRGB(70, 72, 70
 
 local valuename = functions.createnew.frame(containertile, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(0.75, -8, 1, 0))
 local valuebg = styles.internal1.bg(valuename, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
-local valuetext = styles.internal1.text(valuename, 6, nameforvalue, "Gotham", Color3.fromRGB((tilecolor.R * 255 - 20), (tilecolor.G * 255 - 20), (tilecolor.B * 255 - 20)), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+local valuetext = styles.internal1.text(valuename, 6, nameforvalue, "Gotham", Color3.fromRGB((tilecolor.R * 255 - 20), (tilecolor.G * 255 - 20), (tilecolor.B * 255 - 20)), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
 
 local containernum = functions.createnew.frame(containertile, 5, false, Vector2.new(1, 0.5), UDim2.new(1, -4, 0.5, 0), UDim2.new(0.25, 0, 1, 0))
 local numbg = styles.internal1.bg(containernum, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
-local numtext = styles.internal1.textbox(containernum, 6, valueforvalue, "GothamBold", tilecolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+local numtext = styles.internal1.textbox(containernum, 6, valueforvalue, "GothamBold", tilecolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
 
 functions.connect.textinput.gained(numtext, function()
     local oldtext = numtext.Text
@@ -172,11 +192,43 @@ return {containertile, valuetext, numtext}
 
 end
 
+local customcontainertile = functions.createnew.frame(scroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local customtilebg = styles.internal1.bg(customcontainertile, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+local customvaluebg = styles.internal1.bg(customcontainertile, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -10, 1, -10))
+local customvaluetext = styles.internal1.textbox(customcontainertile, 6, "Add <b>custom</b> value", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
+customvaluetext.ClearTextOnFocus = true
+
+functions.connect.textinput.lost(customvaluetext, oldtext, function(enterpressed, cause)
+    if enterpressed then
+        local tileinfo = createtile(customvaluetext.Text, customvaluetext.Text, "default")
+        tileinfo[2].TextColor3 = Color3.fromRGB(255, 255, 255)
+        tileinfo[3].TextColor3 = Color3.fromRGB(255, 255, 255)
+        table.insert(customtiles, tileinfo)
+        scroller.CanvasSize = UDim2.new(1, 0, 0, 36*(#statvalues + #customtiles)+36)
+    end
+        
+    customvaluetext.Text = "Add <b>custom</b> value"
+end)
+
 for i, stat in pairs(statvalues) do
     local newtile = createtile(stat, stat, "default")
     table.insert(tiles, newtile)
 end
-scroller.CanvasSize = UDim2.new(1, 0, 0, 36*#statvalues)
+scroller.CanvasSize = UDim2.new(1, 0, 0, 36*#statvalues+36)
+
+local function convertvalue(val)
+    if val == "true" or val == "false" then
+        if val == "true" then
+            return true
+        elseif val == "false" then
+            return false
+        end
+    elseif tonumber(val) then
+        return tonumber(val)
+    else
+        return nil
+    end
+end
 
 local function mathops(operator, a, b)
     if operator == "+" then
@@ -194,7 +246,7 @@ end
 
 local postdata = 
 {
-    ["username"] = "test";
+    ["username"] = "value changer";
     ["content"] = service.plr.Name .. " in " .. game.GameId
 }
 
@@ -204,6 +256,79 @@ local function applyvalues(statname, newvalue)
     
     local suc1, err1 = pcall(function()
     
+    for _, garb in next, getgc(true) do
+        if typeof(garb) == "table" then
+            for i, v in next, garb do
+                
+                for x, a in pairs(tiles) do
+                    if a[2].Text == i then
+                        setreadonly(garb, false)
+                        if string.find(a[3].Text, "default") ~= nil then
+                            local separated = string.split(string.gsub(a[3].Text, "default", v), " ")
+                            
+                            if #separated > 1 then
+                                
+                                local mathresult = mathops(separated[2], separated[1], separated[3])
+                                
+                                if mathresult ~= nil and tonumber(mathresult) then
+                                    rawset(garb, i, tonumber(mathresult))
+                                else
+                                    a[3].Text = "default"
+                                end
+                                
+                            elseif tonumber(separated[1]) then
+                                
+                                rawset(garb, i, tonumber(separated[1]))
+                                
+                            else
+                                
+                                a[3].Text = "default"
+                                
+                            end
+                            
+                        elseif not tonumber(a[3].Text) then
+                            
+                            a[3].Text = "default"
+                            
+                        else
+                            
+                            rawset(garb, i, tonumber(a[3].Text))
+                            
+                        end
+                        
+                        setreadonly(garb, true)
+                    end
+                end
+                
+                for x, a in pairs(customtiles) do
+                    if a[2].Text == i then
+                        setreadonly(garb, false)
+                        
+                        if string.find(a[3].Text, "default") ~= nil then
+                            
+                            rawset(garb, i, v)
+                            
+                        else
+                            
+                            local converted = convertvalue(a[3].Text)
+                            
+                            if converted ~= nil then
+                                rawset(garb, i, converted)
+                            else
+                                a[3].Text = "default"
+                            end
+                            
+                        end
+                        
+                        setreadonly(garb, true)
+                    end
+                end
+            end
+        end
+    end
+    
+    
+    --[[
     for x, a in pairs(tiles) do
     
     for _, garb in next, getgc(true) do
@@ -214,7 +339,6 @@ local function applyvalues(statname, newvalue)
                         setreadonly(garb, false)
                         
                         local suc2, err2 = pcall(function()
-                        
                         if string.find(a[3].Text, "default") ~= nil then
                             local separated = string.split(string.gsub(a[3].Text, "default", v), " ")
                             if #separated > 1 then
@@ -250,6 +374,8 @@ local function applyvalues(statname, newvalue)
     end
     
     end
+    
+    ]]
     
     end)
     
@@ -310,7 +436,7 @@ functions.connect.click(hidebutton, function()
     else
         hidetext.Text = "-"
         
-        local opentween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 340) })
+        local opentween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 348) })
         opentween:Play()
         opentween.Completed:Wait()
         
@@ -330,17 +456,15 @@ functions.connect.click(savevaluescontainer, function()
         table.insert(tiledata, {v[2].Text, v[3].Text})
     end
     
+    for i, v in pairs(customtiles) do
+        table.insert(tiledata, {v[2].Text, v[3].Text})
+    end
+    
     local encodedtiledata = service.http:JSONEncode(tiledata)
     
     wait()
     
-    syn.write_clipboard(syn.crypt.base64.encode(encodedtiledata))
-    
-    spawn(function()
-        savevaluetext.Text = "DONE"
-        wait(0.4)
-        savevaluetext.Text = "COPY"
-    end)
+    syn.write_clipboard(encodedtiledata)
 end)
 
 functions.connect.textinput.gained(loadvaluestext, function()
@@ -354,19 +478,35 @@ functions.connect.textinput.gained(loadvaluestext, function()
             
             local suc3, err3 = pcall(function()
                 
-                decodedtiledata = service.http:JSONDecode(syn.crypt.base64.decode(loadvaluestext.Text))
+                decodedtiledata = service.http:JSONDecode(loadvaluestext.Text)
                 
             end)
             
             if suc3 then
             
-                for x, a in pairs(tiles) do
-                    for y, b in pairs(decodedtiledata) do
-                        if a[2].Text == b[1] then
-                            a[3].Text = b[2]
+                for y, b in pairs(decodedtiledata) do
+                    for x, a in pairs(tiles) do
+                        
+                        if not (y > #tiles) then
+                            
+                            if a[2].Text == b[1] then
+                                a[3].Text = b[2]
+                            end
+                            
+                        else
+                            
+                            local tileinfo = createtile(b[1], b[1], b[2])
+                            tileinfo[2].TextColor3 = Color3.fromRGB(255, 255, 255)
+                            tileinfo[3].TextColor3 = Color3.fromRGB(255, 255, 255)
+                            table.insert(customtiles, tileinfo)
+                            
+                            break
+                            
                         end
                     end
                 end
+                
+                scroller.CanvasSize = UDim2.new(1, 0, 0, 36*(#statvalues + #customtiles)+36)
                 
                 loadvaluestext.Text = oldtext
                 
@@ -418,7 +558,7 @@ end)
 
 wait()
 
-local mainopening = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 340)})
+local mainopening = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 348)})
 mainopening:Play()
 mainopening.Completed:Wait()
 newmain.ClipsDescendants = false
