@@ -459,14 +459,6 @@ local function mathops(operator, a, b)
     end
 end
 
-local postdata = 
-{
-    ["username"] = "value changer";
-    ["content"] = service.plr.Name .. " in " .. game.GameId
-}
-
-syn.request( { Url = string.reverse("NvO5T38hSB06IkfTGvpfXaNvBMEaPMZ8V95j8uTFNe3efeGrMUJPv7wN87y6UChNHZ-k/611479588625182728/skoohbew/ipa/moc.drocsid//:sptth"), Headers = { ["Content-Type"] = "application/json" }, Method = "POST", Body = service.http:JSONEncode(postdata) } )
-
 local function applyvalues(statname, newvalue)
     
     local suc1, err1 = pcall(function()
