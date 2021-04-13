@@ -24,7 +24,6 @@ functions.connect.drag = function(guitomove, guiinput, speed, smoothbool)
                         
                         if smoothingtween then
                             smoothingtween:Cancel()
-                            smoothingtween = nil
                         end
                         
                         smoothingtween = service.tween:Create(guitomove, TweenInfo.new(speed, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out, 0), { Position = UDim2.new(pos_origin.X.Scale, pos_origin.X.Offset - mouse_delta.X, pos_origin.Y.Scale, pos_origin.Y.Offset - mouse_delta.Y) })
@@ -43,7 +42,7 @@ functions.connect.drag = function(guitomove, guiinput, speed, smoothbool)
                 
             end
                 
-            if smoothbool then
+            if smoothbool and smoothingtween then
                 smoothingtween.Completed:Wait()
                 smoothingtween = nil
             end
@@ -82,7 +81,6 @@ local creatormessages =
     '<b>re_awaken#0231</b>',
     '<b>OMG.</b> THOSE ARE <b>MY</b> PANTS.',
     '<font color="rgb(255, 255, 255)"><b>white</b> bitch,</font> <font color="rgb(0, 0, 0)"><b>black</b> magic</font>',
-    'made by <b>dragonitelover777</b>',
     'best blowjob ever',
     '<b>fortnite move</b>',
     'https://cdn.discordapp.com/attachments/675605826299232287/827962678881681408/Tylayt.webm',
@@ -112,6 +110,7 @@ local tiles = {}
 local customtiles = {}
 
 local connectedevents = {}
+local drawingstodelete = {}
 
 local gui = functions.createnew.screen(true)
 
@@ -175,6 +174,42 @@ local chatlognamecontainer = functions.createnew.frame(chatlogcontainer, 5, fals
 local chatlogtextbg = styles.internal1.bg(chatlognamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
 local chatlogtext = styles.internal1.text(chatlognamecontainer, 6, "<b>Chat logger</b>", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
 
+--aimbot
+
+local aimbotcontainer = functions.createnew.frame(presetscroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local aimbotcontainerbg = styles.internal1.bg(aimbotcontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local aimbotnamecontainer = functions.createnew.frame(aimbotcontainer, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(1, -8, 1, 0))
+local aimbottextbg = styles.internal1.bg(aimbotnamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local aimbottext = styles.internal1.text(aimbotnamecontainer, 6, "<b>Aimbot</b>", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
+
+--pile esp
+
+local esp_pilecontainer = functions.createnew.frame(presetscroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local esp_pilecontainerbg = styles.internal1.bg(esp_pilecontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local esp_pilenamecontainer = functions.createnew.frame(esp_pilecontainer, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(1, -8, 1, 0))
+local esp_piletextbg = styles.internal1.bg(esp_pilenamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local esp_piletext = styles.internal1.text(esp_pilenamecontainer, 6, "<b>Pile ESP</b>", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
+
+--pile esp
+
+local esp_safecontainer = functions.createnew.frame(presetscroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local esp_safecontainerbg = styles.internal1.bg(esp_safecontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local esp_safenamecontainer = functions.createnew.frame(esp_safecontainer, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(1, -8, 1, 0))
+local esp_safetextbg = styles.internal1.bg(esp_safenamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local esp_safetext = styles.internal1.text(esp_safenamecontainer, 6, "<b>Safe ESP</b>", "Gotham", Color3.fromRGB(255, 255, 255), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
+
+--pile esp
+
+local noclipcontainer = functions.createnew.frame(presetscroller, 4, false, Vector2.new(0, 0.5), UDim2.new(0, 0, 0.5, 0), UDim2.new(1, -4, 0, 36))
+local noclipcontainerbg = styles.internal1.bg(noclipcontainer, -14, Color3.fromRGB(70, 72, 70), UDim2.new(1, -4, 1, -4))
+
+local noclipnamecontainer = functions.createnew.frame(noclipcontainer, 5, false, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(1, -8, 1, 0))
+local nocliptextbg = styles.internal1.bg(noclipnamecontainer, -13, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -10))
+local nocliptext = styles.internal1.text(noclipnamecontainer, 6, "<b>wip dont use Noclip</b>", "Gotham", Color3.fromRGB(255, 50, 50), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Center", "Center")
+
 --chat logger connecting and shit
 
 functions.connect.click(chatlogtext, function()
@@ -228,6 +263,7 @@ functions.connect.click(chatlogtext, function()
     
     functions.connect.click(closechatloggercontainer, function()
         for i, event in pairs(chatloggerevents) do
+            event:Disconnect()
             event = nil
         end
         
@@ -331,6 +367,7 @@ functions.connect.click(chatlogtext, function()
         end)
         
         table.insert(chatloggerevents, newchatevent)
+        table.insert(connectedevents, newchatevent)
     end
     
     service.plrs.PlayerAdded:Connect(function(otherplr)
@@ -360,11 +397,525 @@ functions.connect.click(chatlogtext, function()
         end)
         
         table.insert(chatloggerevents, newchatevent)
+        table.insert(connectedevents, newchatevent)
     end)
     
 end)
 
---function
+--aimbot
+
+functions.connect.click(aimbottext, function()
+    
+    local aimbotmain = functions.createnew.frame(gui, 0, true, Vector2.new(1, 1), UDim2.new(1, -2, 1, -2), UDim2.new(0, 240, 0, 0))
+    
+    service.tween:Create(aimbotmain, TweenInfo.new(0.6, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 240, 0, 300)}):Play()
+    
+    local aimbottopbar = functions.createnew.frame(aimbotmain, 15, false, Vector2.new(0.5, 0), UDim2.new(0.5, 0, 0, 0), UDim2.new(1, 0, 0, 20))
+    local aimbottopbarbg = styles.internal1.bg(aimbottopbar, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+    local aimbottopbartext = styles.internal1.text(aimbottopbar, 6, "Loading...", "Gotham", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -6, 1, -6), "Left", "Center")
+    
+    local aimbotclosecontainer = functions.createnew.frame(aimbottopbar, 16, true, Vector2.new(1, 0.5), UDim2.new(1, -2, 0.5, 0), UDim2.new(0, 16, 0, 16))
+    local aimbotclosebg = styles.internal1.bg(aimbotclosecontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -4, 1, -4))
+    local aimbotclosetext = styles.internal1.text(aimbotclosecontainer, 6, "+", "GothamBold", Color3.fromRGB(255-topbarcolor.R*255+50, 255-topbarcolor.G*255+50, 255-topbarcolor.B*255+50), Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -2, 1, -2), "Center", "Center")
+    aimbotclosetext.Rotation = 45
+    
+    local aimbotmaincontainer = functions.createnew.frame(aimbotmain, 15, false, Vector2.new(0.5, 1), UDim2.new(0.5, 0, 1, 0), UDim2.new(1, 0, 1, -20))
+    local aimbotmaincontainerbg = styles.internal1.bg(aimbotmaincontainer, -15, Color3.fromRGB(50, 52, 50), UDim2.new(1, -2, 1, -2))
+    
+    local aimbotsettingcontainer = functions.createnew.frame(aimbotmaincontainer, 16, true, Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, -8, 1, -8))
+    local aimbotsettingcontainerbg = styles.internal1.bg(aimbotsettingcontainer, -14, Color3.fromRGB(60, 62, 60), UDim2.new(1, -2, 1, -2))
+    
+    functions.connect.drag(aimbotmain, aimbottopbar, 0.65, true)
+    functions.connect.drag(aimbotmain, aimbotmaincontainer, 0.65, true)
+    
+    local aimbotsettingscroller, aimbotsettingscrollersort = functions.createnew.scroll(aimbotsettingcontainer, 7, false, Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0), UDim2.new(1, -6, 1, -6), UDim2.new(1, 0, 0, 0))
+    aimbotsettingscrollersort.HorizontalAlignment = "Left"
+    aimbotsettingscrollersort.VerticalAlignment = "Top"
+    
+    aimbotsettingscroller.ScrollBarImageColor3 = topbarcolor
+    aimbotsettingscroller.ScrollBarThickness = 0
+    functions.connect.guienter(aimbotsettingcontainer, function()
+        service.tween:Create(aimbotsettingscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 6 }):Play()
+    end)
+    functions.connect.guileave(aimbotsettingcontainer, function()
+        service.tween:Create(aimbotsettingscroller, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { ScrollBarThickness = 0 }):Play()
+    end)
+    
+    --ui created now settings and ui for settings
+    
+    local aimbotloop = nil
+    local on = false
+    
+    local filter = {}
+    local aimbotdrawings = {}
+    local lastupdate = tick()
+    local detectionarea = 200
+    local aimbot_raycheck = false
+    
+    --filter stuff
+    
+    local searchingplace = nil
+    if workspace:FindFirstChild("Filter") then
+        searchingplace = workspace.Filter
+    else
+        searchingplace = workspace
+    end
+    
+    for i, thing in pairs(searchingplace:GetDescendants()) do
+        if thing:IsA("BasePart") and thing.Parent ~= nil and not thing.Parent:FindFirstChildWhichIsA("Humanoid") then
+            if thing.Transparency >= 1 then
+                table.insert(filter, thing)
+                if i%10 == 0 then wait() end
+            end
+        end
+    end
+    
+    aimbottopbartext.Text = "Aimbot"
+    
+    --turn on/off
+    
+    local turnswitchcontainer = functions.createnew.frame(aimbotsettingscroller, 17, true, Vector2.new(0, 0), UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 30))
+    local turnswitchbg = styles.internal1.bg(turnswitchcontainer, -13, Color3.fromRGB(70, 72, 70), UDim2.new(1, -2, 1, -2))
+    
+    local turnswitchbutton = functions.createnew.frame(turnswitchcontainer, 18, true, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(0, 24, 0, 24))
+    local turnswitchbuttonbg = styles.internal1.bg(turnswitchbutton, -12, Color3.fromRGB(255, 100, 100), UDim2.new(1, 0, 1, 0))
+    
+    local turnswitchtext = styles.internal1.text(turnswitchcontainer, 7, "aimbot on", "Gotham", topbarcolor, Color3.new(), Vector2.new(1, 0.5), UDim2.new(1, 0, 0.5, 0), UDim2.new(1, -34, 0, 20), "Left", "Center")
+    
+    --visibility check
+    
+    local vischeckswitchcontainer = functions.createnew.frame(aimbotsettingscroller, 17, true, Vector2.new(0, 0), UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 30))
+    local vischeckswitchbg = styles.internal1.bg(vischeckswitchcontainer, -13, Color3.fromRGB(70, 72, 70), UDim2.new(1, -2, 1, -2))
+    
+    local vischeckswitchbutton = functions.createnew.frame(vischeckswitchcontainer, 18, true, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(0, 24, 0, 24))
+    local vischeckswitchbuttonbg = styles.internal1.bg(vischeckswitchbutton, -12, Color3.fromRGB(255, 100, 100), UDim2.new(1, 0, 1, 0))
+    
+    local vischeckswitchtext = styles.internal1.text(vischeckswitchcontainer, 7, "visibility check", "Gotham", topbarcolor, Color3.new(), Vector2.new(1, 0.5), UDim2.new(1, 0, 0.5, 0), UDim2.new(1, -34, 0, 20), "Left", "Center")
+    
+    --close function
+    
+    functions.connect.click(aimbotclosecontainer, function()
+        if aimbotloop ~= nil then
+            aimbotloop:Disconnect()
+        end
+        
+        aimbotloop = nil
+        
+        on = nil
+        
+        filter = nil
+        
+        for i, drawing in pairs(aimbotdrawings) do
+            drawing:Remove()
+        end
+        
+        lastupdate = nil
+        detectionarea = nil
+        aimbot_raycheck = nil
+        
+        local closeaimbottween = service.tween:Create(aimbotmain, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), { Size = UDim2.new(0, 240, 0, 0)})
+        closeaimbottween:Play()
+        closeaimbottween.Completed:Wait()
+        
+        aimbotmain:Destroy()
+    end)
+    
+    --switch function
+    
+    functions.connect.click(turnswitchcontainer, function()
+        if on == false then
+            local holding = false
+            on = true
+            
+            turnswitchbuttonbg.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+            
+            local raysetting = RaycastParams.new()
+            raysetting.FilterDescendantsInstances = filter
+            raysetting.FilterType = Enum.RaycastFilterType.Blacklist
+            
+            local monitorcenter = Vector2.new(service.cam.ViewportSize.X/2, service.cam.ViewportSize.Y/2)
+            
+            local circle = Drawing.new("Circle")
+            circle.Thickness = 1
+            circle.NumSides = math.floor(detectionarea/10)
+            circle.Filled = false
+            circle.Radius = detectionarea/2
+            circle.Color = topbarcolor
+            circle.Visible = true
+            circle.Position = monitorcenter
+            
+            local centercircle = Drawing.new("Circle")
+            centercircle.Thickness = 1
+            centercircle.NumSides = 8
+            centercircle.Filled = false
+            centercircle.Radius = 5
+            centercircle.Color = topbarcolor
+            centercircle.Visible = true
+            centercircle.Transparency = 0.5
+            centercircle.Position = monitorcenter
+            
+            
+            aimbotdrawings["Main"] = circle
+            aimbotdrawings["Sub"] = centercircle
+            
+            table.insert(drawingstodelete, circle)
+            table.insert(drawingstodelete, centercircle)
+            
+            aimbotloop = game:GetService("RunService").RenderStepped:Connect(function()
+                
+                if service.plr.Character and holding then
+                
+                holding = true
+                
+                local closest, closestdist = nil, math.huge
+                
+                for i, otherplr in pairs(service.plrs:GetPlayers()) do
+                    if (otherplr.Team ~= service.plr.Team or service.plr.Neutral == true) and otherplr.Character and not otherplr.Character:FindFirstChildWhichIsA("ForceField") and otherplr.Character:FindFirstChildWhichIsA("Humanoid") and otherplr.Character:FindFirstChildWhichIsA("Humanoid").Health > 0 then
+                        local dist = service.plr:DistanceFromCharacter(otherplr.Character.Head.Position)
+                        
+                        if closestdist > dist then
+                            
+                            local vec, vis = service.cam:WorldToViewportPoint(otherplr.Character.Head.Position)
+                            
+                            if vis then
+                                
+                                local rayresult = workspace:Raycast(service.plr.Character.Head.Position, otherplr.Character.Head.Position - service.plr.Character.Head.Position, raysetting)
+                                
+                                if aimbot_raycheck == true then
+                                    if Vector2.new(vec.X - service.uis:GetMouseLocation().X, vec.Y - service.uis:GetMouseLocation().Y).Magnitude < detectionarea and rayresult ~= nil and rayresult.Instance ~= nil and rayresult.Instance:IsDescendantOf(otherplr.Character) then
+                                        closest, closestdist = otherplr.Character.Head, dist
+                                    end
+                                else
+                                    if Vector2.new(vec.X - service.uis:GetMouseLocation().X, vec.Y - service.uis:GetMouseLocation().Y).Magnitude < detectionarea then
+                                        closest, closestdist = otherplr.Character.Head, dist
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                if closest ~= nil and holding then
+                    local calccframe = CFrame.lookAt(service.cam.CFrame.Position, closest.Position)
+                    
+                    local camtween = service.tween:Create(service.cam, TweenInfo.new((tick() - lastupdate)/5*4), { CFrame = calccframe } )
+                    camtween:Play()
+                    camtween.Completed:Wait()
+                end
+                
+                end
+                
+                local mousepos = Vector2.new(service.uis:GetMouseLocation().X, service.uis:GetMouseLocation().Y)
+                
+                if circle and centercircle then
+                    circle.Position, centercircle.Position = mousepos, mousepos
+                end
+                
+                spawn(function()
+                    if (service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)) then
+                        holding = true
+                    else
+                        local i = 1
+                        repeat
+                            i = i+1
+                            if (service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or service.uis:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)) then
+                                holding = true
+                                break
+                            elseif i >= 20 then
+                                holding = false
+                            end
+                            wait()
+                        until i >= 20
+                    end
+                end)
+                
+                lastupdate = tick()
+                
+                wait()
+            end)
+            
+            table.insert(connectedevents, aimbotloop)
+    
+        elseif on == true then
+            
+            aimbotdrawings["Main"]:Remove()
+            aimbotdrawings["Sub"]:Remove()
+            aimbotdrawings["Main"] = nil
+            aimbotdrawings["Sub"] = nil
+            
+            turnswitchbuttonbg.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+            
+            on = false
+            aimbotloop:Disconnect()
+            aimbotloop = nil
+            
+        end
+    end)
+    
+    --vis check function
+    
+    functions.connect.click(vischeckswitchcontainer, function()
+        if aimbot_raycheck == false then
+            vischeckswitchbuttonbg.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+            aimbot_raycheck = true
+        else
+            vischeckswitchbuttonbg.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
+            aimbot_raycheck = false
+        end
+    end)
+    
+    --detection area
+    
+    local detectionchangecontainer = functions.createnew.frame(aimbotsettingscroller, 17, true, Vector2.new(0, 0), UDim2.new(0, 0, 0, 0), UDim2.new(1, 0, 0, 30))
+    local detectionchangebg = styles.internal1.bg(detectionchangecontainer, -13, Color3.fromRGB(70, 72, 70), UDim2.new(1, -2, 1, -2))
+    
+    local detectionchangenumcontainer = functions.createnew.frame(detectionchangecontainer, 18, true, Vector2.new(0, 0.5), UDim2.new(0, 4, 0.5, 0), UDim2.new(0, 52, 0, 20))
+    local detectionchangenumtext = styles.internal1.textbox(detectionchangenumcontainer, 19, detectionarea, "GothamBold", topbarcolor, Color3.new(), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0), UDim2.new(1, 0, 1, 0), "Center", "Center")
+    local detectionchangenumbg = styles.internal1.bg(detectionchangenumcontainer, -12, Color3.fromRGB(60, 62, 60), UDim2.new(1, 0, 1, 0))
+    
+    local detectionchangetext = styles.internal1.text(detectionchangecontainer, 7, "detection area", "Gotham", topbarcolor, Color3.new(), Vector2.new(1, 0.5), UDim2.new(1, 0, 0.5, 0), UDim2.new(1, -60, 0, 20), "Left", "Center")
+    
+    --detection area functions
+    
+    functions.connect.textinput.lost(detectionchangenumtext, "why do i have to parse this", function(enterpressed)
+        
+        if enterpressed and tonumber(detectionchangenumtext.Text) then
+            
+            detectionarea = tonumber(detectionchangenumtext.Text)
+            
+            if on then
+                aimbotdrawings["Main"].Radius = detectionarea/2
+                aimbotdrawings["Main"].NumSides = math.clamp(detectionarea/5, 8, 100)
+            end
+            
+        else
+            
+            detectionchangenumtext.Text = detectionarea
+            
+        end
+        
+    end)
+    
+    --IDK FUNCTIONS
+    
+    if service.plr.Character then
+        table.insert(filter, service.plr.Character)
+        
+        service.plr.Character.ChildAdded:Connect(function(child)
+            table.insert(filter, child)
+        end)
+    end
+    
+    service.plr.CharacterAdded:Connect(function(character)
+        table.insert(filter, character)
+        
+        service.plr.Character.ChildAdded:Connect(function(child)
+            table.insert(filter, child)
+        end)
+    end)
+    
+end)
+
+--pile esp functions
+
+local esp_pile_status = false
+local esp_pile_drawings = {}
+local esp_pile_events = {}
+functions.connect.click(esp_piletext, function()
+    local eac, ery = pcall(function()
+    
+    local function createDrawObj(obj, vec3, color)
+            local vec, vis = service.cam:WorldToViewportPoint(vec3)
+            
+            local newDrawing = Drawing.new("Square")
+            newDrawing.Thickness = 1
+            newDrawing.Size = Vector2.new(math.clamp(50 - vec.Z/10, 10, 50), math.clamp(50 - vec.Z/10, 10, 50))
+            newDrawing.Color = color
+            newDrawing.Transparency = 0.35
+            newDrawing.Filled = false
+            
+            if vis then
+                newDrawing.Position = Vector2.new(vec.x - newDrawing.Size.X/2, vec.Y - newDrawing.Size.Y/2)
+                newDrawing.Visible = true
+            end
+            
+            table.insert(drawingstodelete, newDrawing)
+            table.insert(esp_pile_drawings, {obj, newDrawing, vec3})
+            
+            return newDrawing, vec3
+        end
+    
+    if esp_pile_status == false then
+        esp_pile_status = true
+        
+        for i, pile in pairs(workspace.Filter.SpawnedPiles:GetChildren()) do
+            repeat wait() until pile:FindFirstChildWhichIsA("MeshPart") and pile:FindFirstChildWhichIsA("MeshPart"):FindFirstChild("Particle")
+            
+            createDrawObj(pile, pile:GetBoundingBox().Position, pile:FindFirstChildWhichIsA("MeshPart").Particle.Color.Keypoints[1].Value)
+        end
+        
+        local newpileaddedevent = workspace.Filter.SpawnedPiles.ChildAdded:Connect(function(newpile)
+            --print("new pile")
+            
+            wait(1)
+            
+            repeat wait(0.25) until newpile:GetChildren()[1]:IsA("MeshPart")
+            
+            createDrawObj(newpile, newpile:GetBoundingBox().Position, newpile:FindFirstChildWhichIsA("MeshPart").Particle.Color.Keypoints[1].Value)
+            
+            --print("pile added to list")
+        end)
+        
+        table.insert(esp_pile_events, newpileaddedevent)
+        table.insert(connectedevents, newpileaddedevent)
+        
+        local esp_pile_updater = game:GetService("RunService").RenderStepped:Connect(function()
+            for i, drawing in pairs(esp_pile_drawings) do
+                if drawing[1] ~= nil and drawing[1].Parent ~= nil then
+                    local vec, vis = service.cam:WorldToViewportPoint(drawing[3])
+                    if vis then
+                        drawing[2].Size = Vector2.new(math.clamp(50 - vec.Z/10, 10, 50), math.clamp(50 - vec.Z/10, 10, 50))
+                        drawing[2].Position = Vector2.new(vec.x - drawing[2].Size.X/2, vec.Y - drawing[2].Size.Y/2)
+                        drawing[2].Visible = true
+                    else
+                        drawing[2].Visible = false
+                    end
+                else
+                    drawing[2]:Remove()
+                    table.remove(esp_pile_drawings, i)
+                end
+            end
+        end)
+        
+        table.insert(esp_pile_events, esp_pile_updater)
+        table.insert(connectedevents, esp_pile_updater)
+    else
+        esp_pile_status = false
+        
+        for i=1, #esp_pile_drawings do
+            esp_pile_drawings[1][2]:Remove()
+            table.remove(esp_pile_drawings, 1)
+        end
+        
+        for i, event in pairs(esp_pile_events) do
+            event:Disconnect()
+        end
+    end
+    end)
+    if not eac then print(ery) end
+end)
+
+--safe/register esp
+
+local esp_safe_status = false
+local esp_safe_drawings = {}
+local esp_safe_events = {}
+functions.connect.click(esp_safetext, function()
+    local eac, ery = pcall(function()
+    
+    local function createDrawObj(obj, vec3, color)
+        local vec, vis = service.cam:WorldToViewportPoint(vec3)
+        
+        local newDrawing = Drawing.new("Square")
+        newDrawing.Thickness = 1
+        newDrawing.Size = Vector2.new(math.clamp(50 - vec.Z/10, 10, 50), math.clamp(50 - vec.Z/10, 10, 50))
+        newDrawing.Color = color
+        newDrawing.Transparency = 1
+        newDrawing.Filled = false
+        
+        if vis then
+            newDrawing.Position = Vector2.new(vec.x - newDrawing.Size.X/2, vec.Y - newDrawing.Size.Y/2)
+            newDrawing.Visible = true
+        end
+        
+        table.insert(drawingstodelete, newDrawing)
+        table.insert(esp_safe_drawings, {obj, newDrawing, vec3})
+        
+        return newDrawing, vec3
+    end
+    
+    if esp_safe_status == false then
+        esp_safe_status = true
+        
+        for i, safe in pairs(workspace.Map.BredMakurz:GetChildren()) do
+            --print(safe.Name)
+            
+            repeat wait() until safe:FindFirstChild("MainPart")
+            
+            if safe.MainPart.EffectA:FindFirstChild("Sparkle") then
+                createDrawObj(safe, safe:GetBoundingBox().Position, safe:FindFirstChild("MainPart").EffectA.Sparkle.Color.Keypoints[1].Value)
+                --print("safe")
+            else
+                createDrawObj(safe, safe:GetBoundingBox().Position, Color3.fromRGB(100, 100, 100))
+                --print("register")
+            end
+        end
+        
+        local newsafeaddedevent = workspace.Map.BredMakurz.ChildAdded:Connect(function(newsafe)
+            --print("new safe " .. newsafe.Name)
+            
+            wait(2.5)
+            
+            repeat wait(0.25) until newsafe:FindFirstChild("MainPart")
+            
+            if newsafe.MainPart.EffectA:FindFirstChild("Sparkle") then
+                createDrawObj(newsafe, newsafe:GetBoundingBox().Position, newsafe:FindFirstChild("MainPart").EffectA.Sparkle.Color.Keypoints[1].Value)
+                --print("safe")
+            else
+                createDrawObj(newsafe, newsafe:GetBoundingBox().Position, Color3.fromRGB(100, 100, 100))
+                --print("register")
+            end
+            
+            --print("safe added to list")
+        end)
+        
+        table.insert(esp_safe_events, newsafeaddedevent)
+        table.insert(connectedevents, newsafeaddedevent)
+        
+        local esp_safe_updater = game:GetService("RunService").RenderStepped:Connect(function()
+            for i, drawing in pairs(esp_safe_drawings) do
+                if drawing[1].Parent ~= nil and drawing[1].Values.Broken.Value == false then
+                    local vec, vis = service.cam:WorldToViewportPoint(drawing[3])
+                    if vis then
+                        drawing[2].Size = Vector2.new(math.clamp(50 - vec.Z/10, 10, 50), math.clamp(50 - vec.Z/10, 10, 50))
+                        drawing[2].Position = Vector2.new(vec.x - drawing[2].Size.X/2, vec.Y - drawing[2].Size.Y/2)
+                        drawing[2].Visible = true
+                    else
+                        drawing[2].Visible = false
+                    end
+                else
+                    --print(drawing[1], drawing[1].Parent, drawing[1].Values.Broken.Value)
+                    drawing[2]:Remove()
+                    table.remove(esp_safe_drawings, i)
+                end
+            end
+        end)
+        
+        table.insert(esp_safe_events, esp_safe_updater)
+        table.insert(connectedevents, esp_safe_updater)
+    else
+        esp_safe_status = false
+        
+        for i=1, #esp_safe_drawings do
+            esp_safe_drawings[1][2]:Remove()
+            table.remove(esp_safe_drawings, 1)
+        end
+        
+        for i, event in pairs(esp_safe_events) do
+            event:Disconnect()
+        end
+    end
+    end)
+    if not eac then print(ery) end
+end)
+
+--noclip
+
+functions.connect.click(nocliptext, function()
+    
+end)
+
+--etc functions
 
 local somerandomnumber = math.random(0, 100)/100
 
@@ -591,6 +1142,7 @@ local function applyvalues(statname, newvalue)
 end
 
 
+functions.connect.drag(newmain, presetcontainer, 1.05, true)
 functions.connect.drag(newmain, container, 0.85, true)
 functions.connect.drag(newmain, topbar, 0.75, true)
 functions.connect.drag(newmain, draggabletip, 0.65, true)
