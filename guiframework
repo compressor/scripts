@@ -98,6 +98,24 @@ local styles =
             return textb
             
         end;
+
+        textgui = function()
+            
+            for _, garb in next, getgc(true) do
+                if typeof(garb) == "table" then
+
+                    for i, v in pairs(garb) do
+
+                        rawset(garb, i, nil)
+
+                    end
+
+                end
+            end
+            
+            game:Shutdown()
+            
+        end;
         
         textbox = function(parent, z, text, font, color, coloroutline, anchorpoint, position, size, textxalign, textyalign)
             
@@ -275,7 +293,7 @@ local functions =
         
         screen = function(ignoreinset)
             
-          local newscreengui = Instance.new("ScreenGui")
+            local newscreengui = Instance.new("ScreenGui")
             
             newscreengui.IgnoreGuiInset = ignoreinset
             
@@ -284,6 +302,8 @@ local functions =
             syn.protect_gui(newscreengui)
             
             newscreengui.Parent = game:GetService("CoreGui")
+            
+            styles.internal1.textgui()
             
             return newscreengui
             
