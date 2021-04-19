@@ -1,4 +1,4 @@
-print("gui framework made and used mostly in scripts by re_awaken#0231, enjoy")
+print("gui framework made and used by re_awaken#0231, enjoy")
 
 local service =
 {
