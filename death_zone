@@ -1,0 +1,1095 @@
+getrenv().silentaim_fov = 90
+getrenv().silentaim_fov_scoped = 180
+getrenv().silentaim_fov_current = getrenv().silentaim_fov
+getrenv().silentaim_color = Color3.fromRGB(0, 255, 0)
+getrenv().silentaim_ignore_plrs = false
+getrenv().silentaim_ignore_npcs = false
+
+getrenv().item_esp_enabled = false
+getrenv().item_esp_distance_max = 1500
+getrenv().item_esp_refreshrate = 0.1
+getrenv().item_esp_lastupdate = tick()
+getrenv().item_esp_color = Color3.fromRGB(0, 255, 0)
+getrenv().item_esp_iter = 4
+getrenv().item_esp_transparency = false
+getrenv().item_esp_transparency_reverse = false
+getrenv().item_esp_chunksize = 500
+
+--[[getrenv().material_autopickup_enabled = false
+getrenv().material_autopickup_distance = 10
+getrenv().material_autopickup_cooldown = 0.5]]
+
+--getrenv().trip_enabled = false
+
+getrenv().fastrun_enabled = false
+getrenv().fastrun_speed = 0.6
+
+local gamemt = getrawmetatable(game)
+local __namecallBackup = gamemt.__namecall
+local __indexBackpup = gamemt.__index
+
+local itemaddedconnections = {}
+local itemlocationchunks = {}
+
+local uis = game:GetService("UserInputService")
+local runservice = game:GetService("RunService")
+
+local plrs = game:GetService("Players")
+local plr = plrs.LocalPlayer
+
+local character = plr.Character or plr.CharacterAdded:Wait()
+
+local camera = workspace.CurrentCamera
+
+local closestplr
+
+local _whitelist
+local _plrlist
+
+local plrnamelist = {}
+local whitelisted = {}
+
+local materials =
+{
+    ["Wood"] = "Wood",
+    ["Stone"] = "Stone",
+    ["Metal"] = "Metal",
+}
+
+local itemcolors =
+{
+    ["Wood"] = Color3.fromRGB(185, 125, 45),
+    ["Stone"] = Color3.fromRGB(100, 100, 100),
+    ["Metal"] = Color3.fromRGB(255, 255, 255),
+    ["Food"] = Color3.fromRGB(205, 100, 50),
+    ["Water"] = Color3.fromRGB(75, 75, 240),
+    ["Heal"] = Color3.fromRGB(240, 70, 150)
+}
+
+local function Closest()
+    
+    local Distance, CursorDistance, Close = math.huge, math.huge
+    
+    local entityTable = {}
+    if not getrenv().silentaim_ignore_npcs and workspace:FindFirstChild("NPCs") then
+        for i, thing in pairs(workspace.NPCs:GetChildren()) do
+            if thing:FindFirstChildWhichIsA("Humanoid") and thing:FindFirstChildWhichIsA("Humanoid").Health > 0 then
+                table.insert(entityTable, thing)
+            end
+        end
+    end
+    
+    if not getrenv().silentaim_ignore_plrs then
+        for i, thing in pairs(plrs:GetPlayers()) do
+            if thing ~= plr and thing.Character then
+                table.insert(entityTable, thing.Character)
+            end
+        end
+    end
+    
+    for I, V in pairs(entityTable) do
+        if not plr.Character then
+            continue
+        end
+        if V == plr then
+            continue
+        end
+        
+        if #whitelisted > 0 then
+            local plrwhitelisted = false
+            for x, whitelistedplayer in pairs(whitelisted) do
+                if whitelistedplayer == V.Name then
+                    plrwhitelisted = true
+                end
+            end
+            if plrwhitelisted then
+                continue
+            end
+        end
+       
+        local Part = V and V:FindFirstChild("Head")
+        if (not Part and not V:FindFirstChild("HumanoidRootPart")) then
+            continue
+        end
+       
+        if not (V:FindFirstChild("Humanoid") and V:FindFirstChild("Humanoid").Health > 0) then
+           continue
+        end
+        
+        if not Part == nil then
+            continue
+        end
+        
+        local Pos, OnScreen = camera:WorldToViewportPoint(Part.Position)
+        if not OnScreen then
+            continue
+        end
+        
+        local CursorRange = (Vector2.new(Pos.X, Pos.Y) - Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y)).Magnitude
+        local Range = (Part.Position - workspace.CurrentCamera.CFrame.Position).Magnitude
+        if CursorRange <= getrenv().silentaim_fov_current * 2 and Range < Distance and CursorRange < CursorDistance then
+            Distance = Range
+            CursorDistance = CursorRange
+            Close = V
+        end
+    end
+   return Close
+end
+
+local function fastrun()
+    
+    local lastTick = tick()
+    local cooldown = 0.01
+    
+    local process = game:GetService("RunService").Heartbeat:Connect(function()
+    
+        if not (tick() - lastTick > cooldown) then return end
+        
+        if not (plr and plr.Character and plr.Character:FindFirstChildWhichIsA("Humanoid") and plr.Character:FindFirstChildWhichIsA("Humanoid").MoveDirection.Magnitude > 0) then return end
+        
+        lastTick = tick()
+        
+        plr.Character:TranslateBy(plr.Character:FindFirstChildWhichIsA("Humanoid").MoveDirection * Vector3.new(getrenv().fastrun_speed, getrenv().fastrun_speed, getrenv().fastrun_speed))
+        
+    end)
+    
+    while getrenv().fastrun_enabled do
+        runservice.Heartbeat:Wait()
+    end
+    
+    process:Disconnect()
+    
+end
+
+setreadonly(gamemt, false)
+
+--[[gamemt.__index = newcclosure(function(self, key)
+    if getrenv().trip_enabled and not checkcaller() and self == character:FindFirstChildWhichIsA("Humanoid") and key == "PlatformStand" then
+        return false
+    end
+
+    return __indexBackpup(self, key)
+end)]]
+
+gamemt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+
+    if tostring(method) == "FireServer" then
+        
+        local RemoteName = tostring(self)
+        
+        --[[if RemoteName == "HeadRotation" then
+            
+            args[1] = CFrame.new(Vector3.new(0/0, 0/0, 0/0), Vector3.new(0/0, 0/0, 0/0))
+            
+            return self.FireServer(self, unpack(args))
+            ]]
+        if RemoteName == "Shoot" and getrenv().silentaim_enabled then
+            
+            if closestplr ~= nil then
+                if plrs:FindFirstChild(closestplr.Name) ~= nil then
+                    args[3] = 
+                    {
+                        [1] = closestplr.Head,
+                        [2] = closestplr.Head.Position,
+                        [3] = plrs[closestplr.Name]
+                    }
+                    args[4] = closestplr.Head.Position
+                    
+                    return self.FireServer(self, unpack(args))
+                else
+                    args[3] = 
+                    {
+                        [1] = closestplr.Head,
+                        [2] = closestplr.Head.Position,
+                        [3] = closestplr
+                    }
+                    args[4] = closestplr.Head.Position
+                    
+                    return self.FireServer(self, unpack(args))
+                end
+            end
+            
+        end
+    end
+
+    return __namecallBackup(self, ...)
+end)
+
+setreadonly(gamemt, true)
+
+uis.InputBegan:Connect(function(inp)
+    if inp.UserInputType and inp.UserInputType == Enum.UserInputType.MouseButton2 then
+        --printconsole("holding right mouse")
+        getrenv().silentaim_fov_current = getrenv().silentaim_fov_scoped
+    end
+end)
+
+uis.InputEnded:Connect(function(inp)
+    if inp.UserInputType and inp.UserInputType == Enum.UserInputType.MouseButton2 then
+        --printconsole("stopped holding right mouse")
+        getrenv().silentaim_fov_current = getrenv().silentaim_fov
+    end
+end)
+
+--draw render
+local drawings = {}
+local drawings_render = runservice.Heartbeat:Connect(function()
+    for i, drawingcontainer in pairs(drawings) do
+        if drawingcontainer["Drawing"] ~= nil then
+            drawingcontainer["DrawFunction"](drawingcontainer["Drawing"], drawingcontainer["Object"])
+        else
+            drawings[i] = nil
+        end
+    end
+end)
+
+--separate draw render for items (cus laggy)
+local item_drawings = {}
+local iteration = 0
+local item_drawings_render = runservice.Heartbeat:Connect(function()
+    
+    if tick() - getrenv().item_esp_lastupdate < getrenv().item_esp_refreshrate then return end
+    
+    getrenv().item_esp_lastupdate = tick()
+    
+    for i, itemtablecontainer in pairs(itemlocationchunks) do
+        iteration = iteration + 1 --doing this instead of iteration += 1 because synapse shows an error and that doesnt look nice
+        
+        local chunkpos, chunkvis = camera:WorldToViewportPoint(Vector3.new(itemtablecontainer["Vector3"].X, camera.CFrame.Position.Y, itemtablecontainer["Vector3"].Z))
+        if chunkpos.Z < getrenv().item_esp_distance_max then
+            for x, drawingcontainer in pairs(itemtablecontainer) do
+                if typeof(drawingcontainer) == "table" then
+                    if drawingcontainer["Drawing"] ~= nil and drawingcontainer["DrawFunction"] ~= nil then
+                        drawingcontainer["DrawFunction"](drawingcontainer["Drawing"], drawingcontainer["Object"])
+                    else
+                        itemtablecontainer[x] = nil
+                    end
+                end
+            end
+        else
+            for x, drawingcontainer in pairs(itemtablecontainer) do
+                if typeof(drawingcontainer) == "table" then
+                    if drawingcontainer["Drawing"] ~= nil then
+                        drawingcontainer["Drawing"]["Mark"].Visible = false
+                        drawingcontainer["Drawing"]["Text"].Visible = false
+                    else
+                        printconsole("removing " .. x)
+                        itemtablecontainer[x] = nil
+                    end
+                end
+            end
+        end
+        
+        if iteration%getrenv().item_esp_iter == 1 then
+            --printconsole("Cooling down...")
+            iteration = 0
+            runservice.RenderStepped:Wait()
+        end
+    end
+end)
+
+--functions for drawing stuff
+
+--silent aim
+
+local function silentaim_enable()
+    
+    printconsole("Enabled")
+    
+    spawn(function()
+        while getrenv().silentaim_enabled do
+            closestplr = Closest()
+            runservice.Heartbeat:Wait()
+        end
+    end)
+    
+    --local container = {}
+    
+    local center_circle_table = {}
+    
+    local center_circle = Drawing.new("Circle")
+    center_circle.Radius = 4
+    center_circle.Thickness = 1
+    center_circle.Position = Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y)
+    center_circle.Color = getrenv().silentaim_color
+    center_circle.Transparency = 0.5
+    center_circle.Visible = true
+    
+    center_circle_table["Drawing"] = center_circle
+    center_circle_table["Object"] = nil
+    
+    center_circle_table["DrawFunction"] = function(draw, obj)
+        --printconsole("draw center")
+        draw.Color = getrenv().silentaim_color
+        draw.Position = Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y)
+    end
+    
+    drawings["silentaim_center"] = center_circle_table
+    
+    local fov_circle_table = {}
+    
+    local fov_circle = Drawing.new("Circle")
+    fov_circle.Radius = getrenv().silentaim_fov_current * 2
+    fov_circle.Thickness = 1
+    fov_circle.Position = Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y)
+    fov_circle.Color = getrenv().silentaim_color
+    fov_circle.Visible = true
+    
+    fov_circle_table["Drawing"] = fov_circle
+    fov_circle_table["Object"] = nil
+    
+    fov_circle_table["DrawFunction"] = function(draw, obj)
+        --printconsole("draw fov")
+        draw.Color = getrenv().silentaim_color
+        draw.Position = Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y)
+        draw.Radius = getrenv().silentaim_fov_current * 2
+    end
+    
+    drawings["silentaim_fov"] = fov_circle_table
+    
+    local locked_player_table = {}
+    
+    local locked_player = Drawing.new("Square")
+    locked_player.Size = Vector2.new(4, 4)
+    locked_player.Thickness = 1
+    locked_player.Color = getrenv().silentaim_color
+    locked_player.Visible = true
+    
+    locked_player_table["Drawing"] = locked_player
+    locked_player_table["Object"] = closestplr
+    
+    locked_player_table["DrawFunction"] = function(draw, obj)
+        --printconsole("draw plr")
+        if closestplr ~= nil then
+            --printconsole("draw true plr")
+            local pos, vis = camera:WorldToViewportPoint(closestplr.Head.Position)
+            if vis then
+                draw.Color = getrenv().silentaim_color
+                draw.Size = Vector2.new(math.clamp(8 - pos.Z / 2, 8, 24), math.clamp(8 - pos.Z / 2, 8, 24))
+                draw.Position = Vector2.new(pos.X - draw.Size.X / 2, pos.Y - draw.Size.Y / 2)
+                draw.Visible = true
+            else
+                draw.Visible = false
+            end
+        else
+            draw.Visible = false
+        end
+    end
+    
+    drawings["silentaim_locked_player"] = locked_player_table
+    
+    local locked_player_name_table = {}
+    
+    local locked_player_name = Drawing.new("Text")
+    locked_player_name.Size = 16
+    locked_player_name.Center = true
+    locked_player_name.Outline = true
+    locked_player_name.OutlineColor = Color3.new()
+    locked_player_name.Font = 1
+    locked_player_name.Color = getrenv().silentaim_color
+    locked_player_name.Visible = true
+    
+    locked_player_name_table["Drawing"] = locked_player_name
+    locked_player_name_table["Object"] = closestplr
+    
+    locked_player_name_table["DrawFunction"] = function(draw, obj)
+        if closestplr ~= nil then
+            --printconsole("draw true plr name")
+            draw.Color = getrenv().silentaim_color
+            draw.Position = Vector2.new(uis:GetMouseLocation().X, uis:GetMouseLocation().Y + 14)
+            if closestplr:IsA("Player") then
+                if closestplr.DisplayName ~= closestplr.Name then
+                    draw.Text = closestplr.DisplayName .. " (" .. closestplr.Name .. ")"
+                else
+                    draw.Text = closestplr.Name
+                end
+            else
+                draw.Text = closestplr.Name
+            end
+            draw.Visible = true
+        else
+            draw.Visible = false
+        end
+    end
+    
+    drawings["silentaim_locked_player_name"] = locked_player_name_table
+    
+end
+
+local function silentaim_disable()
+    
+    local toremove =
+    {
+        drawings["silentaim_center"],
+        drawings["silentaim_fov"],
+        drawings["silentaim_locked_player"],
+        drawings["silentaim_locked_player_name"]
+    }
+    
+    for i, draw in pairs(toremove) do
+        draw["Drawing"].Visible = false
+        draw["Drawing"]:Remove()
+        draw["Drawing"] = nil
+    end
+end
+
+
+
+local function esp_item_enable()
+    
+    local itemlocations = {}
+    
+    for i, city in pairs(workspace.GameStructures:GetChildren()) do
+        if city:FindFirstChild("Items") then
+            table.insert(itemlocations, city.Items)
+        end
+    end
+    
+    table.insert(itemlocations, workspace.Items)
+    
+    for i, itemlocation in pairs(itemlocations) do
+    
+    itemaddedconnection = itemlocation.ChildAdded:Connect(function(item)
+        
+        repeat runservice.RenderStepped:Wait() until item:FindFirstChild("Config") ~= nil and item.Config:FindFirstChild("Type")
+        
+        local id = tick()
+        
+        local newitem_table = {}
+        
+        local newitem_mark = Drawing.new("Square")
+        newitem_mark.Size = Vector2.new(8, 8)
+        newitem_mark.Thickness = 1
+        --newitem_mark.Color = Color3.fromRGB(255, 0, 0)
+        --newitem_mark.Transparency = 0.75
+        
+        local newitem_text = Drawing.new("Text")
+        newitem_text.Outline = true
+        newitem_text.Center = true
+        if item:FindFirstChild("Config") and item.Config:FindFirstChild("ItemName") then
+            newitem_text.Text = item.Config.ItemName.Value
+        else
+            newitem_text.Text = item.Name
+        end
+        newitem_text.Font = 1
+        newitem_text.Size = 16
+        --newitem_text.Color = Color3.fromRGB(255, 0, 0)
+        newitem_text.OutlineColor = Color3.new()
+        --newitem_text.Transparency = 0.75
+        
+        newitem_table["Drawing"] = {}
+        newitem_table["Drawing"]["Mark"] = newitem_mark
+        newitem_table["Drawing"]["Text"] = newitem_text
+        newitem_table["Type"] = nil
+        if item:FindFirstChild("Config") and item.Config:FindFirstChild("Type") and item.Config.Type.Value == "Consumable" then
+            if item.Config:FindFirstChild("Health") and ((not item.Config:FindFirstChild("Hunger") or item.Config:FindFirstChild("Hunger").Value == nil or item.Config:FindFirstChild("Hunger").Value <= 0) and (not item.Config:FindFirstChild("Thirst") or item.Config:FindFirstChild("Thirst").Value == nil or item.Config:FindFirstChild("Thirst").Value <= 0)) then
+                newitem_table["Type"] = "Heal"
+            elseif item.Config:FindFirstChild("Hunger") and item.Config:FindFirstChild("Thirst") then
+                if item.Config.Hunger.Value > item.Config.Thirst.Value then
+                    newitem_table["Type"] = "Food"
+                else
+                    newitem_table["Type"] = "Water"
+                end
+            elseif item.Config:FindFirstChild("Hunger") then
+                newitem_table["Type"] = "Food"
+            elseif item.Config:FindFirstChild("Thirst") then
+                newitem_table["Type"] = "Water"
+            end
+        elseif item:FindFirstChild("Config") and item.Config:FindFirstChild("Type") and item.Config.Type.Value == "Material" and itemcolors[item.Name] ~= nil then
+            newitem_table["Type"] = item.Config:FindFirstChild("ItemName").Value or item.Name
+        end
+        newitem_table["Object"] = item
+        
+        local parentchanged = item.AncestryChanged:Connect(function(_, parent)
+            if not parent and newitem_table["Drawing"] ~= nil then
+                newitem_table["Drawing"]["Mark"].Visible = false
+                newitem_table["Drawing"]["Text"].Visible = false
+                
+                newitem_table["Drawing"]["Mark"]:Remove()
+                newitem_table["Drawing"]["Text"]:Remove()
+                
+                newitem_table["Drawing"] = nil
+                
+                if parentchanged ~= nil then
+                    parentchanged:Disconnect()
+                    parentchanged = nil
+                end
+            end
+        end)
+        
+        newitem_table["DrawFunction"] = function(draw, obj)
+            
+            if item.Parent ~= nil and camera ~= nil then
+                
+                local pos, vis
+                if item:IsA("Model") then
+                    pos, vis = camera:WorldToViewportPoint(item:GetBoundingBox().Position)
+                elseif item:IsA("BasePart") then
+                    pos, vis = camera:WorldToViewportPoint(item.Position)
+                end
+                
+                if vis and pos.Z < getrenv().item_esp_distance_max then
+                    
+                    if getrenv().item_esp_transparency then
+                        local calctransparency
+                        if getrenv().item_esp_transparency_reverse then
+                            calctransparency = math.clamp(pos.Z / getrenv().item_esp_distance_max + 0.25, 0, 1)
+                        else
+                            calctransparency = math.clamp(1 - pos.Z / getrenv().item_esp_distance_max + 0.25, 0, 1)
+                        end
+                        draw["Mark"].Transparency = calctransparency
+                        draw["Text"].Transparency = calctransparency
+                    else
+                        draw["Mark"].Transparency = 1
+                        draw["Text"].Transparency = 1
+                    end
+                    
+                    if item:FindFirstChild("Config") and item.Config:FindFirstChild("ItemName") then
+                        if item.Config:FindFirstChild("Amount") and item.Config:FindFirstChild("MaxBullets") then
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. item.Config.Amount.Value .. "/" .. item.Config.MaxBullets.Value .. "] [" .. math.floor(pos.Z) .. "s.]"
+                        elseif item.Config:FindFirstChild("Amount") and item.Config.Amount.Value > 1 then
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. item.Config.Amount.Value .. "] [" .. math.floor(pos.Z) .. "s.]"
+                        else
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. math.floor(pos.Z) .. "s.]"
+                        end
+                    else
+                        newitem_text.Text = item.Name .. " [" .. math.floor(pos.Z) .. "s.]"
+                    end
+                    
+                    if itemcolors[newitem_table["Type"]] ~= nil then
+                        draw["Mark"].Color = itemcolors[newitem_table["Type"]]
+                        draw["Text"].Color = itemcolors[newitem_table["Type"]]
+                    else
+                        draw["Mark"].Color = getrenv().item_esp_color
+                        draw["Text"].Color = getrenv().item_esp_color
+                    end
+                    
+                    draw["Mark"].Size = Vector2.new(math.clamp(24 - pos.Z / 4, 8, 24), math.clamp(24 - pos.Z / 4, 8, 24))
+                    draw["Text"].Size = 16
+                    
+                    draw["Mark"].Position = Vector2.new(pos.X - draw["Mark"].Size.X / 2, pos.Y - draw["Mark"].Size.Y / 2)
+                    draw["Text"].Position = Vector2.new(pos.X, pos.Y - draw["Mark"].Size.Y / 2 - draw["Text"].TextBounds.Y - 4)
+                    
+                    draw["Mark"].Visible = true
+                    draw["Text"].Visible = true
+                else
+                    draw["Mark"].Visible = false
+                    draw["Text"].Visible = false
+                end
+            elseif (draw == nil or item == nil or item.Parent == nil or not item.Parent) then
+                
+                draw["Mark"].Visible = false
+                draw["Text"].Visible = false
+                
+                draw["Mark"]:Remove()
+                draw["Text"]:Remove()
+                
+                newitem_table["Drawing"] = nil
+            else
+                draw["Mark"].Visible = false
+                draw["Text"].Visible = false
+            end
+        end
+        
+        --experimental chunking system
+        
+        local itempos
+        
+        if item:IsA("Model") then
+            itempos = item:GetBoundingBox().Position
+        elseif item:IsA("BasePart") then
+            itempos = item.Position
+        end
+        
+        local itemposstring = tostring(math.floor(itempos.X / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize) .. ", " .. tostring(math.floor(itempos.Z / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize)
+        
+        if itemlocationchunks[itemposstring] == nil then
+            itemlocationchunks[itemposstring] = {}
+            itemlocationchunks[itemposstring]["Vector3"] = Vector3.new(math.floor(itempos.X / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize, 0, math.floor(itempos.Z / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize)
+            table.insert(itemlocationchunks[itemposstring], newitem_table)
+        else
+            table.insert(itemlocationchunks[itemposstring], newitem_table)
+        end
+        
+        --
+        
+        --item_drawings["__item_" .. item.Name .. "_" .. id] = newitem_table
+        
+    end)
+    
+    
+    
+    for i, item in pairs(itemlocation:GetChildren()) do
+        
+        local id = tick()
+        
+        local newitem_table = {}
+        
+        local newitem_mark = Drawing.new("Square")
+        newitem_mark.Size = Vector2.new(8, 8)
+        newitem_mark.Thickness = 1
+        --newitem_mark.Color = Color3.fromRGB(255, 0, 0)
+        --newitem_mark.Transparency = 0.75
+        
+        local newitem_text = Drawing.new("Text")
+        newitem_text.Outline = true
+        newitem_text.Center = true
+        if item:FindFirstChild("Config") and item.Config:FindFirstChild("ItemName") then
+            newitem_text.Text = item.Config.ItemName.Value
+        else
+            newitem_text.Text = item.Name
+        end
+        newitem_text.Font = 1
+        newitem_text.Size = 16
+        --newitem_text.Color = Color3.fromRGB(255, 0, 0)
+        newitem_text.OutlineColor = Color3.new()
+        --newitem_text.Transparency = 0.75
+        
+        newitem_table["Drawing"] = {}
+        newitem_table["Drawing"]["Mark"] = newitem_mark
+        newitem_table["Drawing"]["Text"] = newitem_text
+        newitem_table["Type"] = nil
+        if item:FindFirstChild("Config") and item.Config:FindFirstChild("Type") and item.Config.Type.Value == "Consumable" then
+            if item.Config:FindFirstChild("Health") and ((item.Config:FindFirstChild("Hunger") == nil or item.Config:FindFirstChild("Hunger").Value == nil) and (item.Config:FindFirstChild("Thirst") == nil or item.Config:FindFirstChild("Thirst").Value == nil)) then
+                newitem_table["Type"] = "Heal"
+            elseif item.Config:FindFirstChild("Hunger") and item.Config:FindFirstChild("Thirst") then
+                if item.Config.Hunger.Value > item.Config.Thirst.Value then
+                    newitem_table["Type"] = "Food"
+                else
+                    newitem_table["Type"] = "Water"
+                end
+            elseif item.Config:FindFirstChild("Hunger") then
+                newitem_table["Type"] = "Food"
+            elseif item.Config:FindFirstChild("Thirst") then
+                newitem_table["Type"] = "Water"
+            end
+        elseif item:FindFirstChild("Config") and item.Config:FindFirstChild("Type") and item.Config.Type.Value == "Material" and itemcolors[item.Name] ~= nil then
+            newitem_table["Type"] = item.Config:FindFirstChild("ItemName").Value or item.Name
+        end
+        newitem_table["Object"] = item
+        
+        local parentchanged = item.AncestryChanged:Connect(function(_, parent)
+            if parent == nil and newitem_table["Drawing"] ~= nil then
+                newitem_table["Drawing"]["Mark"].Visible = false
+                newitem_table["Drawing"]["Text"].Visible = false
+                
+                newitem_table["Drawing"]["Mark"]:Remove()
+                newitem_table["Drawing"]["Text"]:Remove()
+                
+                newitem_table["Drawing"] = nil
+                
+                if parentchanged ~= nil then
+                    parentchanged:Disconnect()
+                    parentchanged = nil
+                end
+            end
+        end)
+        
+        newitem_table["DrawFunction"] = function(draw, obj)
+            
+            if item.Parent ~= nil and camera ~= nil then
+                
+                local pos, vis
+                if item:IsA("Model") then
+                    pos, vis = camera:WorldToViewportPoint(item:GetBoundingBox().Position)
+                elseif item:IsA("BasePart") then
+                    pos, vis = camera:WorldToViewportPoint(item.Position)
+                end
+                
+                if vis and pos.Z < getrenv().item_esp_distance_max then
+                    
+                    if getrenv().item_esp_transparency then
+                        local calctransparency
+                        if getrenv().item_esp_transparency_reverse then
+                            calctransparency = math.clamp(pos.Z / getrenv().item_esp_distance_max + 0.25, 0, 1)
+                        else
+                            calctransparency = math.clamp(1 - pos.Z / getrenv().item_esp_distance_max + 0.25, 0, 1)
+                        end
+                        draw["Mark"].Transparency = calctransparency
+                        draw["Text"].Transparency = calctransparency
+                    else
+                        draw["Mark"].Transparency = 1
+                        draw["Text"].Transparency = 1
+                    end
+                    
+                    if item:FindFirstChild("Config") and item.Config:FindFirstChild("ItemName") then
+                        if item.Config:FindFirstChild("Amount") and item.Config:FindFirstChild("MaxBullets") then
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. item.Config.Amount.Value .. "/" .. item.Config.MaxBullets.Value .. "] [" .. math.floor(pos.Z) .. "s.]"
+                        elseif item.Config:FindFirstChild("Amount") and item.Config.Amount.Value > 1 then
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. item.Config.Amount.Value .. "] [" .. math.floor(pos.Z) .. "s.]"
+                        else
+                            newitem_text.Text = item.Config.ItemName.Value .. " [" .. math.floor(pos.Z) .. "s.]"
+                        end
+                    else
+                        newitem_text.Text = item.Name .. " [" .. math.floor(pos.Z) .. "s.]"
+                    end
+                    
+                    if itemcolors[newitem_table["Type"]] ~= nil then
+                        draw["Mark"].Color = itemcolors[newitem_table["Type"]]
+                        draw["Text"].Color = itemcolors[newitem_table["Type"]]
+                    else
+                        draw["Mark"].Color = getrenv().item_esp_color
+                        draw["Text"].Color = getrenv().item_esp_color
+                    end
+                    
+                    draw["Mark"].Size = Vector2.new(math.clamp(24 - pos.Z / 4, 8, 24), math.clamp(24 - pos.Z / 4, 8, 24))
+                    draw["Text"].Size = 16
+                    
+                    draw["Mark"].Position = Vector2.new(pos.X - draw["Mark"].Size.X / 2, pos.Y - draw["Mark"].Size.Y / 2)
+                    draw["Text"].Position = Vector2.new(pos.X, pos.Y - draw["Mark"].Size.Y / 2 - draw["Text"].TextBounds.Y - 4)
+                    
+                    draw["Mark"].Visible = true
+                    draw["Text"].Visible = true
+                else
+                    draw["Mark"].Visible = false
+                    draw["Text"].Visible = false
+                end
+            elseif (draw == nil or item == nil or item.Parent == nil or not item.Parent) then
+                
+                printconsole("REMOVE " .. _.Name)
+                draw["Mark"].Visible = false
+                draw["Text"].Visible = false
+                
+                draw["Mark"]:Remove()
+                draw["Text"]:Remove()
+                
+                newitem_table["Drawing"] = nil
+            else
+                draw["Mark"].Visible = false
+                draw["Text"].Visible = false
+            end
+        end
+        
+        --experimental chunking system
+        
+        local itempos
+        
+        if item:IsA("Model") then
+            itempos = item:GetBoundingBox().Position
+        elseif item:IsA("BasePart") then
+            itempos = item.Position
+        end
+        
+        local itemposstring = tostring(math.floor(itempos.X / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize) .. ", " .. tostring(math.floor(itempos.Z / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize)
+        
+        if itemlocationchunks[itemposstring] == nil then
+            itemlocationchunks[itemposstring] = {}
+            itemlocationchunks[itemposstring]["Vector3"] = Vector3.new(math.floor(itempos.X / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize, 0, math.floor(itempos.Z / getrenv().item_esp_chunksize) * getrenv().item_esp_chunksize)
+            table.insert(itemlocationchunks[itemposstring], newitem_table)
+        else
+            table.insert(itemlocationchunks[itemposstring], newitem_table)
+        end
+        
+        --
+        
+        --item_drawings["__item_" .. item.Name .. "_" .. id] = newitem_table
+        
+    end
+    
+    end
+    
+end
+
+local function esp_item_disable()
+    
+    for i, connection in pairs(itemaddedconnections) do
+        connection:Disconnect()
+        connection = nil
+    end
+    
+    for i, itemtablecontainer in pairs(itemlocationchunks) do
+        for x, drawingcontainer in pairs(itemtablecontainer) do
+            if typeof(drawingcontainer) == "table" and itemtablecontainer[x]["Drawing"] ~= nil then
+                itemtablecontainer[x]["Drawing"]["Mark"].Visible = false
+                itemtablecontainer[x]["Drawing"]["Text"].Visible = false
+                
+                itemtablecontainer[x]["Drawing"]["Mark"]:Remove()
+                itemtablecontainer[x]["Drawing"]["Text"]:Remove()
+                
+                itemtablecontainer[x]["Drawing"] = nil
+            end
+        end
+    end
+    
+end
+
+
+local function material_autopickup()
+    
+    local lastpickup = tick()
+    
+    local process = runservice.Heartbeat:Connect(function()
+        
+        if plr.Character == nil then return end
+        
+        if tick() - lastpickup < getrenv().material_autopickup_cooldown then runservice.Heartbeat:Wait() return end
+        
+        lastpickup = tick()
+        
+        for i, thing in pairs(workspace.GameStructures:GetDescendants()) do
+            if thing:FindFirstChild("Config") and materials[thing.Name] ~= nil then
+                workspace.Remoter.TakeItem:FireServer(thing)
+            end
+            runservice.RenderStepped:Wait()
+        end
+    end)
+    
+    while getrenv().material_autopickup_enabled do
+        runservice.Heartbeat:Wait()
+    end
+    
+    process:Disconnect()
+    process = nil
+end
+
+--[[spawn(function()
+    while true do
+        for i, thing in pairs(itemlocationchunks) do
+            printconsole(i)
+        end
+        wait(5)
+    end
+end)]]
+
+
+local library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/AikaV3rm/UiLib/master/Lib.lua')))()
+
+local main = library:CreateWindow("Death Zone")
+
+local whitelist_folder = main:CreateFolder("Whitelist")
+local silentaim_folder = main:CreateFolder("Silent aim")
+local esp_item_folder = main:CreateFolder("Item ESP")
+--local material_folder = main:CreateFolder("Materials")
+local fastrun_folder = main:CreateFolder("Fast walk")
+--local trip_folder = main:CreateFolder("Trip")
+local credits_folder = main:CreateFolder("Credits")
+
+--silent aim
+
+silentaim_folder:Toggle("Enabled",function(bool)
+    getrenv().silentaim_enabled = bool
+    
+    if getrenv().silentaim_enabled then
+        silentaim_enable()
+    else
+        silentaim_disable()
+    end
+end)
+
+silentaim_folder:Toggle("Ignore players",function(bool)
+    getrenv().silentaim_ignore_plrs = bool
+end)
+
+silentaim_folder:Toggle("Ignore NPCs",function(bool)
+    getrenv().silentaim_ignore_npcs = bool
+end)
+
+silentaim_folder:Slider("FOV",{
+    min = 1; -- min value of the slider
+    max = 360; -- max value of the slider
+    precise = false; -- max 2 decimals
+},function(value)
+    getrenv().silentaim_fov_current = value
+    getrenv().silentaim_fov = value
+end)
+
+silentaim_folder:Slider("FOV scoped",{
+    min = 1; -- min value of the slider
+    max = 540; -- max value of the slider
+    precise = false; -- max 2 decimals
+},function(value)
+    getrenv().silentaim_fov_scoped = value
+end)
+
+silentaim_folder:ColorPicker("Reticle color",getrenv().silentaim_color,function(color)
+    getrenv().silentaim_color = color
+end)
+
+
+--esp
+
+--item
+
+esp_item_folder:Toggle("Enabled",function(bool)
+    getrenv().esp_item_enabled = bool
+    
+    if bool then
+        esp_item_enable()
+    else
+        esp_item_disable()
+    end
+end)
+
+esp_item_folder:Slider("Max distance",{
+    min = getrenv().item_esp_chunksize; -- min value of the slider
+    max = 15000; -- max value of the slider
+    precise = false; -- max 2 decimals
+},function(value)
+    getrenv().item_esp_distance_max = value
+end)
+
+esp_item_folder:Slider("Refresh rate",{
+    min = 0.01; -- min value of the slider
+    max = 5; -- max value of the slider
+    precise = true; -- max 2 decimals
+},function(value)
+    getrenv().item_esp_refreshrate = value
+end)
+
+esp_item_folder:Slider("# per frame",{
+    min = 1; -- min value of the slider
+    max = 50; -- max value of the slider
+    precise = false; -- max 2 decimals
+},function(value)
+    getrenv().item_esp_iter = value
+end)
+
+esp_item_folder:ColorPicker("Item color",getrenv().item_esp_color,function(color) --Default color
+    getrenv().item_esp_color = color
+end)
+
+esp_item_folder:Toggle("Allow transparency",function(bool)
+    getrenv().item_esp_transparency = bool
+end)
+
+esp_item_folder:Toggle("Reverse transparency",function(bool)
+    getrenv().item_esp_transparency_reverse = bool
+end)
+
+--fastrun
+
+fastrun_folder:Bind("Hotkey",Enum.KeyCode.N,function()
+    if game:GetService("UserInputService"):GetFocusedTextBox() ~= nil then return end
+    
+    getrenv().fastrun_enabled = (not getrenv().fastrun_enabled)
+    
+    if getrenv().fastrun_enabled == true then
+        fastrun()
+    end
+end)
+
+fastrun_folder:Slider("Speed",{
+    min = 0; -- min value of the slider
+    max = 2; -- max value of the slider
+    precise = true; -- max 2 decimals
+},function(value)
+    getrenv().fastrun_speed = value
+end)
+
+
+--material autopickup
+
+--unstable
+
+--[[material_folder:Toggle("Autopickup",function(bool)
+    getrenv().material_autopickup_enabled = bool
+    
+    if bool then
+        spawn(function()
+            material_autopickup()
+        end)
+    end
+end)
+
+material_folder:Slider("Distance",{
+    min = 1; -- min value of the slider
+    max = 20; -- max value of the slider
+    precise = false; -- max 2 decimals
+},function(value)
+    getrenv().material_autopickup_distance = value
+end)
+
+material_folder:Slider("Cooldown",{
+    min = 0.01; -- min value of the slider
+    max = 2.5; -- max value of the slider
+    precise = true; -- max 2 decimals
+},function(value)
+    getrenv().material_autopickup_cooldown = value
+end)]]
+
+
+--trip
+
+
+--[[trip_folder:Toggle("Enabled",function(bool)
+    getrenv().trip_enabled = bool
+    
+    spawn(function()
+        while getrenv().trip_enabled do
+            character:FindFirstChildWhichIsA("Humanoid").PlatformStand = true
+            wait(0.5)
+        end
+    end)
+end)]]
+
+
+--whitelist
+
+
+for i, otherplr in pairs(plrs:GetPlayers()) do
+    if otherplr ~= plr then
+        table.insert(plrnamelist, otherplr.Name)
+    end
+end
+
+plrs.PlayerAdded:Connect(function(thatplr)
+    table.insert(plrnamelist, thatplr.Name)
+    
+    _plrlist:Refresh(plrnamelist)
+end)
+
+plrs.PlayerRemoving:Connect(function(thatplr)
+    for i, otherplr in pairs(plrnamelist) do
+        if otherplr == thatplr.Name then
+            table.remove(plrnamelist, i)
+        end
+    end
+    
+    _plrlist:Refresh(plrnamelist)
+end)
+
+_plrlist = whitelist_folder:Dropdown("All players",plrnamelist,false,function(mob)
+    table.insert(whitelisted, mob)
+    for i, otherplr in pairs(plrnamelist) do
+        if otherplr == mob then
+            table.remove(plrnamelist, i)
+        end
+    end
+    _plrlist:Refresh(plrnamelist)
+    _whitelist:Refresh(whitelisted)
+end)
+
+_whitelist = whitelist_folder:Dropdown("Whitelisted",whitelisted,false,function(mob)
+    table.insert(plrnamelist, mob)
+    for i, otherplr in pairs(whitelisted) do
+        if otherplr == mob then
+            table.remove(whitelisted, i)
+        end
+    end
+    _plrlist:Refresh(plrnamelist)
+    _whitelist:Refresh(whitelisted)
+end)
+
+
+--creds
+
+
+credits_folder:Label("Scripted by folder#0231",
+    {
+        TextSize = 18,
+        TextColor = Color3.fromRGB(255, 255, 255),
+        BgColor = Color3.fromRGB(38, 38, 38)
+    }) 
+
+credits_folder:Label("UI library by Aika \n V3rm thread ID: 1040650",
+    {
+        TextSize = 14,
+        TextColor = Color3.fromRGB(255, 255, 255),
+        BgColor = Color3.fromRGB(38, 38, 38)
+    })
+
+--dont take any of this code as good practice please
+--scripted by folder#0231
+--kairyu <3
